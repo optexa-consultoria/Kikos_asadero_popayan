@@ -53,12 +53,12 @@ class Cart {
         if (!this.toastContainer) return;
         
         const toast = document.createElement('div');
-        toast.className = 'bg-dark text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-fade-in transition-all duration-300';
+        toast.className = 'bg-primary text-white px-6 py-4 border-4 border-dark shadow-brutal-sm flex items-center gap-4 animate-fade-in transition-all duration-300 transform -rotate-1';
         toast.innerHTML = `
-            <div class="bg-green-500 rounded-full p-1 text-white">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            <div class="bg-dark p-2 text-primary border-2 border-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <p class="font-medium text-sm">${message}</p>
+            <p class="font-display uppercase tracking-widest text-lg font-bold">${message}</p>
         `;
         
         this.toastContainer.appendChild(toast);
@@ -128,7 +128,7 @@ class Cart {
 
         // Render items
         if (this.items.length === 0) {
-            this.cartItemsContainer.innerHTML = '<p class="text-center text-gray-500 mt-10 font-medium">Tu carrito está vacío.</p>';
+            this.cartItemsContainer.innerHTML = '<p class="text-center text-dark font-bold uppercase tracking-widest mt-10">Tu arsenal está vacío.</p>';
             this.cartTotalPrice.textContent = '$0.00';
             this.checkoutBtn.disabled = true;
             return;
@@ -142,19 +142,19 @@ class Cart {
             const itemTotal = item.price * item.quantity;
             total += itemTotal;
             html += `
-                <div class="flex gap-4 py-4 border-b border-gray-100 items-center">
-                    <img src="${item.image || ''}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover bg-gray-100" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\'><rect width=\\\'100%\\\' height=\\\'100%\\\' fill=\\\'#f3f4f6\\\'/></svg>'">
+                <div class="flex gap-4 py-4 border-b-4 border-dark items-center bg-white p-2 mb-4 shadow-brutal-sm">
+                    <img src="${item.image || ''}" alt="${item.name}" class="w-20 h-20 border-4 border-dark object-cover bg-dark grayscale" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\'><rect width=\\\'100%\\\' height=\\\'100%\\\' fill=\\\'#09090b\\\'/></svg>'">
                     <div class="flex-grow">
-                        <div class="font-bold text-dark text-sm mb-1 leading-tight">${item.name}</div>
-                        <div class="text-primary font-bold text-sm mb-2">$${item.price.toFixed(2)}</div>
-                        <div class="flex items-center gap-3">
-                            <button class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition" onclick="window.appCart.updateQuantity('${item.id}', -1)">-</button>
-                            <span class="font-bold text-sm">${item.quantity}</span>
-                            <button class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition" onclick="window.appCart.updateQuantity('${item.id}', 1)">+</button>
+                        <div class="font-display font-bold text-dark text-xl mb-1 uppercase leading-none">${item.name}</div>
+                        <div class="text-primary font-bold text-xl mb-2 font-display">$${item.price.toFixed(2)}</div>
+                        <div class="flex items-center gap-4">
+                            <button class="w-10 h-10 bg-dark text-white font-display text-2xl border-2 border-dark flex items-center justify-center hover:bg-white hover:text-dark transition-colors" onclick="window.appCart.updateQuantity('${item.id}', -1)">-</button>
+                            <span class="font-bold text-2xl font-display w-6 text-center">${item.quantity}</span>
+                            <button class="w-10 h-10 bg-dark text-white font-display text-2xl border-2 border-dark flex items-center justify-center hover:bg-white hover:text-dark transition-colors" onclick="window.appCart.updateQuantity('${item.id}', 1)">+</button>
                         </div>
                     </div>
-                    <button class="text-gray-400 hover:text-primary transition p-2" onclick="window.appCart.removeItem('${item.id}')">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <button class="text-dark bg-secondary p-3 border-4 border-dark shadow-brutal-sm hover:shadow-none hover:translate-y-1 transition-all" onclick="window.appCart.removeItem('${item.id}')">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     </button>
                 </div>
             `;

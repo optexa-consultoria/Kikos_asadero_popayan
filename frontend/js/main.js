@@ -24,7 +24,7 @@ async function loadDestacados() {
         renderProducts(productos, grid);
     } catch (err) {
         console.error('Error fetching destacados:', err);
-        grid.innerHTML = '<div class="col-span-full text-center text-red-500 font-medium p-8">No se pudieron cargar los productos destacados.</div>';
+        grid.innerHTML = '<div class="col-span-full text-center text-primary font-display text-3xl uppercase p-8 border-4 border-dark shadow-brutal">La conexión fue interceptada.</div>';
     }
 }
 
@@ -49,7 +49,7 @@ async function loadMenu() {
         // Renderizar botones de filtro
         categorias.forEach(cat => {
             const btn = document.createElement('button');
-            btn.className = 'filter-btn bg-white text-gray-600 border-2 border-gray-200 hover:border-primary hover:text-primary px-6 py-2 rounded-full font-bold transition';
+            btn.className = 'filter-btn bg-white text-dark border-4 border-dark px-8 py-3 font-display text-2xl shadow-brutal-sm hover:shadow-none hover:translate-y-1 transition-all uppercase';
             btn.dataset.filter = cat;
             btn.textContent = cat;
             filtersContainer.appendChild(btn);
@@ -61,13 +61,13 @@ async function loadMenu() {
             btn.addEventListener('click', (e) => {
                 // Actualizar UI de botones
                 filterBtns.forEach(b => {
-                    b.classList.remove('bg-primary', 'text-white', 'border-primary');
-                    b.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
+                    b.classList.remove('bg-primary', 'text-white');
+                    b.classList.add('bg-white', 'text-dark');
                 });
                 
                 const target = e.target;
-                target.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
-                target.classList.add('bg-primary', 'text-white', 'border-primary');
+                target.classList.remove('bg-white', 'text-dark');
+                target.classList.add('bg-primary', 'text-white');
                 
                 // Filtrar datos
                 const category = target.dataset.filter;
@@ -85,13 +85,13 @@ async function loadMenu() {
 
     } catch (err) {
         console.error('Error fetching menu:', err);
-        grid.innerHTML = '<div class="col-span-full text-center text-red-500 font-medium p-8">No se pudo cargar el menú.</div>';
+        grid.innerHTML = '<div class="col-span-full text-center text-primary font-display text-3xl uppercase p-8 border-4 border-dark shadow-brutal">La conexión fue interceptada.</div>';
     }
 }
 
 function renderProducts(productos, container) {
     if (!productos || productos.length === 0) {
-        container.innerHTML = '<div class="col-span-full text-center text-gray-500 p-8 font-medium">No hay productos en esta categoría.</div>';
+        container.innerHTML = '<div class="col-span-full text-center text-dark p-12 font-display text-3xl border-4 border-dark uppercase shadow-brutal-sm">Sector Vacío. No hay carne aquí.</div>';
         return;
     }
 
@@ -104,22 +104,22 @@ function renderProducts(productos, container) {
             image: p.URL_Imagen
         }).replace(/"/g, '&quot;');
 
-        const imgSrc = p.URL_Imagen || 'data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\'><rect width=\\\'100%\\\' height=\\\'100%\\\' fill=\\\'#e5e7eb\\\'/></svg>';
+        const imgSrc = p.URL_Imagen || 'data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\'><rect width=\\\'100%\\\' height=\\\'100%\\\' fill=\\\'#09090b\\\'/></svg>';
 
-        // Tarjeta con micro-interacciones (hover:-translate-y-1 hover:shadow-lg)
+        // Tarjeta Brutalista
         html += `
-            <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                <div class="h-48 w-full bg-gray-100 overflow-hidden">
-                    <img src="${imgSrc}" alt="${p.Nombre}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy">
+            <div class="bg-white border-4 border-dark flex flex-col transition-all shadow-brutal-sm hover:shadow-brutal hover:-translate-y-2">
+                <div class="h-64 w-full bg-dark border-b-4 border-dark overflow-hidden relative">
+                    <img src="${imgSrc}" alt="${p.Nombre}" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" loading="lazy">
+                    ${p.Destacado ? '<div class="absolute top-4 right-4 bg-secondary text-dark font-display text-xl px-3 py-1 border-2 border-dark shadow-brutal-sm transform rotate-3">ÉLITE</div>' : ''}
                 </div>
-                <div class="p-5 flex flex-col flex-grow">
-                    <h4 class="font-extrabold text-xl text-dark mb-2">${p.Nombre}</h4>
-                    <p class="text-sm text-gray-500 mb-4 flex-grow line-clamp-2">${p.Descripcion || ''}</p>
-                    <div class="flex justify-between items-center mt-auto">
-                        <span class="font-bold text-xl text-primary">$${p.Precio.toFixed(2)}</span>
-                        <button class="bg-secondary hover:bg-yellow-500 text-dark font-bold py-2 px-4 rounded-lg shadow-sm transition transform active:scale-95 flex items-center gap-2" onclick="window.appCart.addItem(${productData})">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            Añadir
+                <div class="p-6 flex flex-col flex-grow">
+                    <h4 class="font-display text-3xl font-extrabold text-dark mb-4 uppercase leading-none">${p.Nombre}</h4>
+                    <p class="text-lg text-gray-800 mb-6 flex-grow font-medium leading-snug">${p.Descripcion || ''}</p>
+                    <div class="flex justify-between items-end mt-auto pt-4 border-t-4 border-dark">
+                        <span class="font-display text-4xl font-bold text-primary block line-clamp-1">$${p.Precio.toFixed(2)}</span>
+                        <button class="bg-dark hover:bg-primary text-white font-display text-xl py-3 px-6 shadow-brutal-sm hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all uppercase flex items-center gap-2" onclick="window.appCart.addItem(${productData})">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                         </button>
                     </div>
                 </div>

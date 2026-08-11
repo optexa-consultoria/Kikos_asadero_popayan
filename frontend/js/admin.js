@@ -2,25 +2,27 @@
  * Lógica del Panel de Administración (B2B) - SPA & Tailwind
  */
 
-// Se llaman desde router.js cuando el hash cambia
 window.checkAdminSession = async function() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-        window.location.hash = '#/login';
+    const { data: { session }, error } = await supabase.auth.getSession();
+    const loginView = document.getElementById('view-admin-login');
+    const dashboardView = document.getElementById('view-admin-dashboard');
+    
+    if (error || !session) {
+        if(dashboardView) dashboardView.classList.remove('active');
+        if(loginView) loginView.classList.add('active');
         return;
     }
     
     // UI del Admin
-    document.getElementById('admin-email-display').textContent = session.user.email;
+    if(loginView) loginView.classList.remove('active');
+    if(dashboardView) dashboardView.classList.add('active');
     loadAdminProducts();
 };
 
-window.checkLoginSession = async function() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        window.location.hash = '#/admin';
-    }
-};
+// Listen para cambios de Auth globales
+supabase.auth.onAuthStateChange((event, session) => {
+    window.checkAdminSession();
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -41,18 +43,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-            if (error) {
-                loginError.textContent = error.message;
-                loginError.classList.remove('hidden');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Iniciar Sesión';
-            } else {
+                if (error) {
+                    throw error;
+                }
+                
+                // Si llegamos aquí, fue exitoso
                 loginForm.reset();
                 loginBtn.disabled = false;
-                loginBtn.textContent = 'Iniciar Sesión';
-                window.location.hash = '#/admin';
+                loginBtn.textContent = 'Entrar al Sistema';
+                window.checkAdminSession();
+
+            } catch (err) {
+                console.error("Error en login:", err);
+                
+                // Manejar error de email no confirmado específicamente (muy común)
+                if (err.message.includes('Email not confirmed')) {
+                    loginError.textContent = 'Error: Falta confirmar el correo. Por favor revisa la bandeja de entrada o desactiva "Confirm email" en Supabase.';
+                } else {
+                    loginError.textContent = err.message || 'Credenciales incorrectas o error de conexión.';
+                }
+                
+                loginError.classList.remove('hidden');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Entrar al Sistema';
             }
         });
     }
@@ -64,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
-            window.location.hash = '#/login';
+            window.checkAdminSession();
         });
     }
 
@@ -196,7 +212,7 @@ async function loadAdminProducts() {
         if (error) throw error;
 
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500">No hay productos registrados.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-dark font-display text-2xl uppercase border-b-4 border-dark">No hay inventario registrado.</td></tr>';
             return;
         }
 
@@ -204,34 +220,33 @@ async function loadAdminProducts() {
         window.adminProducts = data; // Cache para edición rápida
 
         data.forEach(p => {
-            const imgSrc = p.URL_Imagen || 'data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\'><rect width=\\\'100%\\\' height=\\\'100%\\\' fill=\\\'#e5e7eb\\\'/></svg>';
+            const imgSrc = p.URL_Imagen || 'data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\'><rect width=\\\'100%\\\' height=\\\'100%\\\' fill=\\\'#09090b\\\'/></svg>';
             
             const badgeActivo = p.Activo 
-                ? '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">Activo</span>' 
-                : '<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold">Inactivo</span>';
+                ? '<span class="bg-primary text-white px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm">Operativo</span>' 
+                : '<span class="bg-white text-dark px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm">Baja</span>';
             
             const badgeDestacado = p.Destacado 
-                ? '<span class="bg-yellow-100 text-amber-800 px-2 py-1 rounded text-xs font-bold mt-1 inline-block">★ Destacado</span>' 
+                ? '<span class="bg-secondary text-dark px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm mt-2 inline-block">Élite</span>' 
                 : '';
 
             html += `
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="p-4">
-                        <img src="${imgSrc}" class="w-12 h-12 object-cover rounded shadow-sm bg-gray-100" alt="img">
+                <tr class="hover:bg-surface transition-colors border-b-4 border-dark">
+                    <td class="p-4 border-r-4 border-dark">
+                        <img src="${imgSrc}" class="w-16 h-16 object-cover border-4 border-dark grayscale bg-dark" alt="img">
                     </td>
-                    <td class="p-4">
-                        <p class="font-bold text-gray-800">${p.Nombre}</p>
+                    <td class="p-4 border-r-4 border-dark">
+                        <p class="font-display font-bold text-xl text-dark uppercase leading-none">${p.Nombre}</p>
                     </td>
-                    <td class="p-4 text-gray-600">${p.Categoria}</td>
-                    <td class="p-4 font-bold text-gray-800">$${p.Precio.toFixed(2)}</td>
-                    <td class="p-4">
-                        <div>${badgeActivo}</div>
-                        <div>${badgeDestacado}</div>
+                    <td class="p-4 border-r-4 border-dark text-dark font-bold font-display uppercase">${p.Categoria}</td>
+                    <td class="p-4 border-r-4 border-dark font-display font-bold text-xl text-primary">$${p.Precio.toFixed(2)}</td>
+                    <td class="p-4 border-r-4 border-dark">
+                        <div class="flex flex-col items-start">${badgeActivo}${badgeDestacado}</div>
                     </td>
-                    <td class="p-4">
-                        <div class="flex gap-3">
-                            <button class="text-blue-600 hover:text-blue-800 font-medium transition" onclick="window.editProduct('${p.ID}')">Editar</button>
-                            <button class="text-red-600 hover:text-red-800 font-medium transition" onclick="window.deleteProduct('${p.ID}')">Eliminar</button>
+                    <td class="p-4 text-center">
+                        <div class="flex flex-col gap-2 justify-center items-center">
+                            <button class="bg-white text-dark border-4 border-dark font-display uppercase font-bold px-4 py-1 hover:bg-dark hover:text-white transition-colors w-full" onclick="window.editProduct('${p.ID}')">Reconfigurar</button>
+                            <button class="bg-primary text-white border-4 border-dark font-display uppercase font-bold px-4 py-1 hover:bg-dark hover:text-white transition-colors w-full" onclick="window.deleteProduct('${p.ID}')">Purgar</button>
                         </div>
                     </td>
                 </tr>
@@ -241,12 +256,12 @@ async function loadAdminProducts() {
         tbody.innerHTML = html;
     } catch (error) {
         console.error('Error fetching admin products:', error);
-        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500">Error al cargar datos.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-primary font-display text-2xl uppercase border-b-4 border-dark">Falla de Sistema.</td></tr>`;
     }
 }
 
 window.editProduct = function(id) {
-    const product = window.adminProducts.find(p => p.ID === id);
+    const product = window.adminProducts.find(p => p.ID.toString() === id.toString());
     if (!product) return;
 
     document.getElementById('modal-title').textContent = 'Editar Producto';

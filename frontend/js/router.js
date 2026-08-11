@@ -7,9 +7,7 @@ class Router {
         this.routes = {
             '#/home': 'view-home',
             '#/menu': 'view-menu',
-            '#/nosotros': 'view-nosotros',
-            '#/login': 'view-admin-login',
-            '#/admin': 'view-admin-dashboard'
+            '#/nosotros': 'view-nosotros'
         };
         this.defaultRoute = '#/home';
         
@@ -43,16 +41,6 @@ class Router {
         const activeView = document.getElementById(targetViewId);
         if (activeView) {
             activeView.classList.add('active');
-        }
-
-        // Si entramos a admin, verificar sesión con admin.js (este se encargará de redirigir a login si falla)
-        if (hash === '#/admin' && window.checkAdminSession) {
-            window.checkAdminSession();
-        }
-        
-        // Si entramos a login, redirigir a admin si ya hay sesión
-        if (hash === '#/login' && window.checkLoginSession) {
-            window.checkLoginSession();
         }
 
         this.updateNavLinks(hash);
