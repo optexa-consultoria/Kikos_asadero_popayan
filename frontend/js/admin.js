@@ -2,30 +2,39 @@
  * Lógica del Panel de Administración (B2B) - SPA & Tailwind
  */
 
-window.checkAdminSession = async function() {
-    const { data: { session }, error } = await supabase.auth.getSession();
+window.checkAdminSession = async function () {
+    console.log("checkAdminSession llamado");
+    const sessionResponse = await supabaseApp.auth.getSession();
+    console.log("Respuesta de getSession:", sessionResponse);
+    const { data: { session }, error } = sessionResponse;
+    
     const loginView = document.getElementById('view-admin-login');
     const dashboardView = document.getElementById('view-admin-dashboard');
-    
+
     if (error || !session) {
-        if(dashboardView) dashboardView.classList.remove('active');
-        if(loginView) loginView.classList.add('active');
+        console.log("No hay sesion, mostrando login");
+        if (dashboardView) dashboardView.classList.remove('active');
+        if (loginView) loginView.classList.add('active');
         return;
     }
-    
+
+    console.log("Sesion valida, mostrando dashboard");
+
     // UI del Admin
-    if(loginView) loginView.classList.remove('active');
-    if(dashboardView) dashboardView.classList.add('active');
+    if (loginView) loginView.classList.remove('active');
+    if (dashboardView) dashboardView.classList.add('active');
     loadAdminProducts();
 };
 
 // Listen para cambios de Auth globales
-supabase.auth.onAuthStateChange((event, session) => {
+supabaseApp.auth.onAuthStateChange((event, session) => {
     window.checkAdminSession();
 });
 
+console.log("admin.js cargado correctamente");
+
 document.addEventListener('DOMContentLoaded', () => {
-    
+    console.log("DOM cargado en admin.html");
     // ----------------------------------------------------------------
     // 1. Lógica de Login
     // ----------------------------------------------------------------
@@ -34,8 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('login-btn');
 
     if (loginForm) {
+        console.log("Formulario de login encontrado. Añadiendo evento submit.");
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log("Boton Entrar al Sistema presionado.");
             loginBtn.disabled = true;
             loginBtn.innerHTML = '<span class="animate-pulse">Iniciando...</span>';
             loginError.classList.add('hidden');
@@ -44,31 +55,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('login-password').value;
 
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                console.log("Enviando petición a Supabase...");
+                const result = await supabaseApp.auth.signInWithPassword({ email, password });
+                console.log("Respuesta de Supabase recibida:", result);
 
-                if (error) {
-                    throw error;
+                if (result.error) {
+                    throw result.error;
                 }
-                
+
                 // Si llegamos aquí, fue exitoso
+                console.log("Login exitoso, llamando a checkAdminSession...");
                 loginForm.reset();
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Entrar al Sistema';
                 window.checkAdminSession();
 
             } catch (err) {
-                console.error("Error en login:", err);
-                
+                console.error("Error en login (capturado):", err);
+
+                let errorMsg = err.message || 'Credenciales incorrectas o error de conexión.';
                 // Manejar error de email no confirmado específicamente (muy común)
                 if (err.message.includes('Email not confirmed')) {
-                    loginError.textContent = 'Error: Falta confirmar el correo. Por favor revisa la bandeja de entrada o desactiva "Confirm email" en Supabase.';
-                } else {
-                    loginError.textContent = err.message || 'Credenciales incorrectas o error de conexión.';
+                    errorMsg = 'Error: Falta confirmar el correo. Por favor revisa la bandeja de entrada o desactiva "Confirm email" en Supabase.';
                 }
-                
+
+                loginError.textContent = errorMsg;
                 loginError.classList.remove('hidden');
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Entrar al Sistema';
+
+                alert(errorMsg);
             }
         });
     }
@@ -79,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('admin-logout-btn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            await supabaseApp.auth.signOut();
             window.checkAdminSession();
         });
     }
@@ -91,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalContent = document.getElementById('admin-modal-content');
     const btnAdd = document.getElementById('btn-add-product');
     const form = document.getElementById('product-form');
-    
+
     const closeBtns = document.querySelectorAll('.admin-modal-close');
 
     const toggleModal = () => {
@@ -106,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalOverlay.classList.add('opacity-0', 'pointer-events-none');
             modalContent.classList.remove('scale-100');
             modalContent.classList.add('scale-95');
-            
+
             // Reset form
             setTimeout(() => {
                 form.reset();
@@ -139,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const categoria = document.getElementById('prod-categoria').value;
                 const activo = document.getElementById('prod-activo').checked;
                 const destacado = document.getElementById('prod-destacado').checked;
-                
+
                 let urlImagen = document.getElementById('prod-url-imagen-actual').value;
                 const fileInput = document.getElementById('prod-imagen');
 
@@ -148,20 +164,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     const file = fileInput.files[0];
                     const fileExt = file.name.split('.').pop();
                     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-                    
+
                     document.getElementById('upload-status').textContent = 'Subiendo imagen...';
-                    
-                    const { error: uploadError } = await supabase.storage
+
+                    const { error: uploadError } = await supabaseApp.storage
                         .from('productos-imagenes')
                         .upload(`public/${fileName}`, file);
 
                     if (uploadError) throw uploadError;
 
                     // Obtener URL pública
-                    const { data: { publicUrl } } = supabase.storage
+                    const { data: { publicUrl } } = supabaseApp.storage
                         .from('productos-imagenes')
                         .getPublicUrl(`public/${fileName}`);
-                    
+
                     urlImagen = publicUrl;
                 }
 
@@ -177,11 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (id) {
                     // Update
-                    const { error } = await supabase.from('productos').update(productData).eq('ID', id);
+                    const { error } = await supabaseApp.from('productos').update(productData).eq('ID', id);
                     if (error) throw error;
                 } else {
                     // Insert
-                    const { error } = await supabase.from('productos').insert([productData]);
+                    const { error } = await supabaseApp.from('productos').insert([productData]);
                     if (error) throw error;
                 }
 
@@ -204,7 +220,7 @@ async function loadAdminProducts() {
     if (!tbody) return;
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseApp
             .from('productos')
             .select('*')
             .order('Categoria', { ascending: true });
@@ -221,13 +237,13 @@ async function loadAdminProducts() {
 
         data.forEach(p => {
             const imgSrc = p.URL_Imagen || 'data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\'><rect width=\\\'100%\\\' height=\\\'100%\\\' fill=\\\'#09090b\\\'/></svg>';
-            
-            const badgeActivo = p.Activo 
-                ? '<span class="bg-primary text-white px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm">Operativo</span>' 
+
+            const badgeActivo = p.Activo
+                ? '<span class="bg-primary text-white px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm">Operativo</span>'
                 : '<span class="bg-white text-dark px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm">Baja</span>';
-            
-            const badgeDestacado = p.Destacado 
-                ? '<span class="bg-secondary text-dark px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm mt-2 inline-block">Élite</span>' 
+
+            const badgeDestacado = p.Destacado
+                ? '<span class="bg-secondary text-dark px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm mt-2 inline-block">Élite</span>'
                 : '';
 
             html += `
@@ -252,7 +268,7 @@ async function loadAdminProducts() {
                 </tr>
             `;
         });
-        
+
         tbody.innerHTML = html;
     } catch (error) {
         console.error('Error fetching admin products:', error);
@@ -260,7 +276,7 @@ async function loadAdminProducts() {
     }
 }
 
-window.editProduct = function(id) {
+window.editProduct = function (id) {
     const product = window.adminProducts.find(p => p.ID.toString() === id.toString());
     if (!product) return;
 
@@ -273,7 +289,7 @@ window.editProduct = function(id) {
     document.getElementById('prod-activo').checked = product.Activo;
     document.getElementById('prod-destacado').checked = product.Destacado;
     document.getElementById('prod-url-imagen-actual').value = product.URL_Imagen || '';
-    
+
     // Mostrar modal (reusando lógica de toggleModal indirectamente abriendo)
     const modalOverlay = document.getElementById('admin-modal-overlay');
     const modalContent = document.getElementById('admin-modal-content');
@@ -282,11 +298,11 @@ window.editProduct = function(id) {
     modalContent.classList.add('scale-100');
 };
 
-window.deleteProduct = async function(id) {
+window.deleteProduct = async function (id) {
     if (!confirm('¿Estás seguro de que deseas eliminar este producto permanentemente?')) return;
-    
+
     try {
-        const { error } = await supabase.from('productos').delete().eq('ID', id);
+        const { error } = await supabaseApp.from('productos').delete().eq('ID', id);
         if (error) throw error;
         loadAdminProducts();
     } catch (error) {

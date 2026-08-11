@@ -13,7 +13,7 @@ async function loadDestacados() {
     if (!grid) return;
 
     try {
-        const { data: productos, error } = await supabase
+        const { data: productos, error } = await supabaseApp
             .from('productos')
             .select('*')
             .eq('Activo', true)
@@ -35,7 +35,7 @@ async function loadMenu() {
     if (!grid || !filtersContainer) return;
     
     try {
-        const { data: productos, error } = await supabase
+        const { data: productos, error } = await supabaseApp
             .from('productos')
             .select('*')
             .eq('Activo', true)

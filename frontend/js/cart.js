@@ -177,7 +177,7 @@ class Cart {
         };
 
         try {
-            await supabase.from('pedidos_log').insert([pedidoData]);
+            await supabaseApp.from('pedidos_log').insert([pedidoData]);
         } catch (error) {
             console.error("No se pudo registrar el log del pedido", error);
         }
