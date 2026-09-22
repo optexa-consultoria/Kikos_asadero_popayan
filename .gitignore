@@ -1,0 +1,7 @@
+# Python (scripts de la skill ui-ux-pro-max)
+__pycache__/
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
