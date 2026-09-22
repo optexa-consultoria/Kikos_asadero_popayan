@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de cookies · Asadero Kikos</title>
+    <meta name="description" content="Qué cookies y almacenamiento local usa la web de Asadero Kikos.">
+    <meta name="theme-color" content="#FA6B02">
+    <link rel="icon" type="image/png" href="/img/pollito-chef.png">
+    <link rel="stylesheet" href="/css/fuentes.css">
+    <script src="/js/vendor/tailwindcss-play-3.4.17.js"></script>
+    <script src="/js/tailwind.config.js"></script>
+    <link rel="stylesheet" href="/css/kikos.css">
+</head>
+<body class="bg-crema text-cafe antialiased min-h-screen flex flex-col">
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-white focus:text-cafe focus:px-4 focus:py-2 focus:rounded-full">Saltar al contenido</a>
+
+    <header class="bg-rotulo-x shadow-calida">
+        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+            <a href="/" aria-label="Asadero Kikos, ir al inicio"><img src="/img/logo-kikos.png" alt="Kikos — Pollo, carne y mucho más" class="h-11 w-auto" width="518" height="151"></a>
+            <a href="/" class="inline-flex items-center h-10 px-4 rounded-full bg-white/85 font-extrabold text-cafe hover:bg-white transition-colors">Volver al inicio</a>
+        </div>
+    </header>
+
+    <main id="contenido" class="flex-grow">
+        <article class="legal max-w-3xl mx-auto px-4 py-12 md:py-16">
+            <p class="italic font-extrabold text-rojo-oscuro">Asadero Kikos</p>
+            <h1 class="font-display uppercase text-4xl md:text-6xl leading-none mt-2">Política de cookies</h1>
+            <p class="text-sm !mt-5">Última actualización: 22 de septiembre de 2026</p>
+
+            <h2>Resumen</h2>
+            <ul>
+                <li><strong>No usamos cookies de analítica, publicidad ni redes sociales.</strong></li>
+                <li>Solo usamos almacenamiento en tu navegador que es necesario para que la web funcione (por ejemplo, el carrito).</li>
+                <li>El mapa de Google <strong>no se carga</strong> hasta que tú lo pides.</li>
+            </ul>
+
+            <h2>¿Qué son las cookies?</h2>
+            <p>Son pequeños archivos que una web guarda en tu navegador. El "almacenamiento local" (<em>localStorage</em>) es una tecnología parecida: guarda información en tu dispositivo, pero no se envía automáticamente a ningún servidor.</p>
+
+            <h2>Qué usamos</h2>
+            <table>
+                <thead><tr><th scope="col">Nombre</th><th scope="col">Tipo</th><th scope="col">Para qué sirve</th><th scope="col">Duración</th></tr></thead>
+                <tbody>
+                    <tr><td><code>kikos_cart</code></td><td>Almacenamiento local · necesario</td><td>Guarda los productos de tu carrito mientras armas el pedido. Solo contiene productos, cantidades y precios.</td><td>Se borra al enviar el pedido o al borrar los datos de tu navegador.</td></tr>
+                    <tr><td><code>sb-…-auth-token</code></td><td>Almacenamiento local · necesario</td><td>Mantiene la sesión del personal autorizado en el panel de administración. Los visitantes del menú no lo generan.</td><td>Hasta cerrar sesión.</td></tr>
+                </tbody>
+            </table>
+
+            <h2>Contenido de terceros</h2>
+            <ul>
+                <li><strong>Mapa de Google:</strong> en la sección de ubicación verás un botón "Cargar mapa de Google". Solo si lo presionas, se carga el mapa y Google puede recibir tu dirección IP y usar sus propias cookies, según la <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política de privacidad de Google</a>. Si no lo presionas, no se conecta con Google. También puedes usar el enlace "Cómo llegar", que abre Google Maps en otra pestaña.</li>
+                <li><strong>WhatsApp:</strong> los botones de WhatsApp te llevan a WhatsApp (Meta). Al salir de nuestra web aplica la <a href="https://www.whatsapp.com/legal/privacy-policy" target="_blank" rel="noopener">Política de privacidad de WhatsApp</a>.</li>
+            </ul>
+            <p>Las fuentes tipográficas, las imágenes y las librerías de la web se sirven desde nuestro propio sitio: no se conectan con servicios de terceros.</p>
+
+            <h2>¿Necesitamos tu consentimiento?</h2>
+            <p>Las tecnologías que usamos son estrictamente necesarias para prestar el servicio que pides (armar tu pedido y, en el caso del personal, iniciar sesión), y no sirven para identificarte ni para hacer perfiles. Por eso no mostramos un aviso de cookies. El único contenido de terceros que puede usar cookies, el mapa, solo se activa si tú lo pides.</p>
+            <p>Si en el futuro incorporamos analítica o publicidad, te pediremos autorización antes de activarlas y actualizaremos esta política.</p>
+
+            <h2>Cómo borrar estos datos</h2>
+            <p>Puedes borrar las cookies y el almacenamiento local desde la configuración de tu navegador (normalmente en "Privacidad" o "Borrar datos de navegación"). Si lo haces, se vaciará tu carrito.</p>
+
+            <p>Más información sobre el uso de tus datos en nuestra <a href="/privacidad">Política de privacidad</a>.</p>
+        </article>
+    </main>
+
+    <footer class="bg-arena/60 text-cafe-suave">
+        <div class="h-1.5 bg-rotulo-x" aria-hidden="true"></div>
+        <nav aria-label="Documentos legales" class="max-w-4xl mx-auto px-4 py-8 flex flex-wrap gap-x-6 gap-y-2 font-semibold">
+            <a href="/terminos" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Términos y condiciones</a>
+            <a href="/privacidad" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Política de privacidad</a>
+            <a href="/cookies" aria-current="page" class="text-cafe underline underline-offset-4">Política de cookies</a>
+            <a href="/reembolsos" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Cambios, garantías y reembolsos</a>
+        </nav>
+    </footer>
+
+    <script src="/js/config.js"></script>
+</body>
+</html>

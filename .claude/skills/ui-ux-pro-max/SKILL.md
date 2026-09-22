@@ -11,8 +11,8 @@ Comprehensive design guide for web and mobile applications. Contains 67 styles, 
 - **Run every command from the repository root** (`kikos-pagina-web/`). The script lives at `.claude/skills/ui-ux-pro-max/scripts/search.py`.
 - On this Windows machine the interpreter is `python` (Python 3.12+). `python3` also exists, but use `python` for consistency.
 - **Stack = `html-tailwind`** (Tailwind via CDN + vanilla JS). Ignore React/Next.js/Vue results.
-- **The site already has a brand identity** (neo-brutalist: `#FF2A00` / `#FFC800` / `#09090b`, Oswald + Archivo, hard offset shadows). It is documented in the root `CLAUDE.md`. Use this tool to **complement** that identity (UX rules, landing structure, accessibility, extra tokens), not to replace it — only propose a new palette/typography when the user explicitly asks for a redesign.
-- Useful queries for this project: `"restaurant food delivery brutalism bold"`, `"restaurant menu ordering whatsapp"`, `--domain ux "mobile touch accessibility"`, `--stack html-tailwind "form responsive"`.
+- **The site already has a brand identity** ("Rótulo clásico, versión moderna": sign gradient `#FED201` → `#FA6B02` → `#E91C01`, café `#2A1206`, crema `#FFF6E6`, light backgrounds only; Anton + Nunito Sans). It is documented in `design-system/asadero-kikos/MASTER.md`. Use this tool to **complement** that identity (UX rules, landing structure, accessibility, extra tokens), not to replace it — only propose a new palette/typography when the user explicitly asks for a redesign.
+- Useful queries for this project: `"restaurant food delivery warm bold"`, `"restaurant menu ordering whatsapp"`, `--domain ux "mobile touch accessibility"`, `--stack html-tailwind "form responsive"`.
 
 ## Prerequisites
 

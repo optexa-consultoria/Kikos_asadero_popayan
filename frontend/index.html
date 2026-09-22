@@ -1,350 +1,483 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-CO">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASADERO KIKOS | 🔥</title>
-    
-    <!-- Tailwind CSS (CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Configuración de Tailwind Brutalista -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#FF2A00',
-                        secondary: '#FFC800',
-                        dark: '#09090b',
-                        surface: '#f4f4f0',
-                    },
-                    fontFamily: {
-                        sans: ['Archivo', 'sans-serif'],
-                        display: ['Oswald', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'brutal': '8px 8px 0px 0px rgba(9,9,11,1)',
-                        'brutal-sm': '4px 4px 0px 0px rgba(9,9,11,1)',
-                        'brutal-hover': '2px 2px 0px 0px rgba(9,9,11,1)',
-                    },
-                    animation: {
-                        'marquee': 'marquee 15s linear infinite',
-                    },
-                    keyframes: {
-                        marquee: {
-                            '0%': { transform: 'translateX(0%)' },
-                            '100%': { transform: 'translateX(-100%)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body { font-family: 'Archivo', sans-serif; background-color: #f4f4f0; }
-        h1, h2, h3, h4, .font-display { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
-        
-        .spa-view { display: none; }
-        .spa-view.active { display: block; animation: fadeIn 0.2s ease-out; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Brutalist Focus States */
-        *:focus-visible { outline: 3px solid #FF2A00; outline-offset: 2px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Asadero Kikos · Pollo asado 24 horas en Popayán</title>
+    <meta name="description" content="Asadero Kikos: pollo, carne y mucho más en el centro de Popayán (Calle 7a #2A-30, barrio Santa Inés). Atención 24 horas. Pedidos por WhatsApp al 323 444 4033.">
+    <meta name="theme-color" content="#FA6B02">
+    <meta property="og:title" content="Asadero Kikos · Pollo asado 24 horas en Popayán">
+    <meta property="og:description" content="Pollo, carne y mucho más. Calle 7a #2A-30, barrio Santa Inés. Domicilios por WhatsApp.">
+    <meta property="og:image" content="/img/aviso-kikos.png">
+    <link rel="icon" type="image/png" href="/img/pollito-chef.png">
+
+    <!-- Fuentes auto-alojadas (sin enviar datos a Google) -->
+    <link rel="stylesheet" href="/css/fuentes.css">
+
+    <!-- Tailwind (copia local fija) + tokens de marca compartidos -->
+    <script src="/js/vendor/tailwindcss-play-3.4.17.js"></script>
+    <script src="/js/tailwind.config.js"></script>
+    <link rel="stylesheet" href="/css/kikos.css">
 </head>
-<body class="bg-surface text-dark antialiased flex flex-col min-h-screen border-8 border-dark selection:bg-primary selection:text-white">
+<body class="bg-crema text-cafe antialiased min-h-screen flex flex-col selection:bg-amarillo selection:text-cafe">
 
-    <!-- Global Toast Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-white focus:text-cafe focus:px-4 focus:py-2 focus:rounded-full focus:shadow-calida">Saltar al contenido</a>
 
-    <!-- Navbar Superior (Desktop & Mobile) -->
-    <header class="bg-surface text-dark sticky top-0 z-40 border-b-4 border-dark">
-        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-            <a href="#/home" class="flex items-center gap-2 font-display font-bold text-4xl tracking-tighter hover:text-primary transition-colors">
-                KIKOS<span class="text-primary text-5xl leading-none">.</span>
+    <!-- Notificaciones -->
+    <div id="toast-container" class="fixed top-24 inset-x-4 sm:inset-x-auto sm:right-6 z-[70] flex flex-col items-center sm:items-end gap-2 pointer-events-none" aria-live="polite"></div>
+
+    <!-- =========================== ENCABEZADO =========================== -->
+    <header class="sticky top-0 z-40 bg-rotulo-x shadow-calida">
+        <div class="max-w-7xl mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-4">
+            <a href="#/home" class="shrink-0" aria-label="Asadero Kikos, ir al inicio">
+                <img src="/img/logo-kikos.png" alt="Kikos — Pollo, carne y mucho más" class="h-11 md:h-14 w-auto" width="518" height="151">
             </a>
-            
-            <!-- Desktop Nav Links -->
-            <nav class="hidden md:flex gap-8 font-bold text-lg tracking-wide uppercase">
-                <a href="#/home" class="hover:text-primary hover:-translate-y-1 transition-transform border-b-4 border-transparent hover:border-primary">Inicio</a>
-                <a href="#/menu" class="hover:text-primary hover:-translate-y-1 transition-transform border-b-4 border-transparent hover:border-primary">Menú</a>
-                <a href="#/nosotros" class="hover:text-primary hover:-translate-y-1 transition-transform border-b-4 border-transparent hover:border-primary">Nosotros</a>
+
+            <nav aria-label="Principal" class="hidden md:flex items-center gap-7 font-extrabold text-cafe text-[17px]">
+                <a href="#/home" class="nav-link py-2 hover:text-rojo-oscuro transition-colors">Inicio</a>
+                <a href="#/menu" class="nav-link py-2 hover:text-rojo-oscuro transition-colors">Menú</a>
+                <a href="#/nosotros" class="nav-link py-2 hover:text-rojo-oscuro transition-colors">Nosotros</a>
+                <a href="#/ubicacion" class="nav-link py-2 hover:text-rojo-oscuro transition-colors">Ubicación</a>
             </nav>
-            
-            <div class="flex items-center gap-4">
-                <!-- Desktop Cart Toggle (Mobile uses Bottom Bar) -->
-                <button onclick="window.appCart.toggleDrawer()" class="hidden md:flex relative items-center justify-center p-3 bg-secondary border-2 border-dark shadow-brutal-sm hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
-                    <svg class="w-6 h-6 stroke-dark" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    <span id="nav-cart-count" class="absolute -top-3 -right-3 bg-primary text-white text-sm font-bold w-6 h-6 flex items-center justify-center border-2 border-dark">0</span>
+
+            <div class="flex items-center gap-3">
+                <span class="hidden lg:inline-flex items-center gap-2 rounded-full bg-white/85 text-cafe text-sm font-extrabold px-4 h-10">
+                    <span class="relative flex h-2.5 w-2.5"><span class="absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75 motion-safe:animate-ping"></span><span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-600"></span></span>
+                    Atención 24 horas
+                </span>
+                <button type="button" data-abrir-carrito class="hidden md:inline-flex relative items-center gap-2 h-11 pl-4 pr-5 rounded-full bg-white text-cafe font-extrabold shadow-calida hover:bg-crema transition-colors cursor-pointer" aria-label="Ver mi pedido">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    Mi pedido
+                    <span id="nav-cart-count" class="min-w-6 h-6 px-1.5 rounded-full bg-rojo text-white text-sm flex items-center justify-center">0</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- MAIN CONTENT AREA (SPA) -->
-    <main class="flex-grow w-full">
-        
-        <!-- =======================
-             VIEW: HOME 
-             ======================= -->
+    <main id="contenido" class="flex-grow w-full">
+
+        <!-- =========================== VISTA: INICIO =========================== -->
         <section id="view-home" class="spa-view active">
-            <!-- Brutalist Hero -->
-            <div class="relative bg-primary text-dark border-b-4 border-dark overflow-hidden">
-                <div class="max-w-7xl mx-auto px-4 py-20 md:py-32 flex flex-col lg:flex-row items-center gap-12">
-                    
-                    <div class="flex-1 z-10 w-full">
-                        <div class="inline-block bg-secondary border-2 border-dark px-4 py-1 font-bold text-sm tracking-widest mb-6 shadow-brutal-sm transform -rotate-2">
-                            ABIERTO 24 HORAS
-                        </div>
-                        <h1 class="font-display text-7xl md:text-9xl font-bold leading-none tracking-tighter mb-6 uppercase">
-                            Fuego<br>
-                            <span class="text-surface drop-shadow-[4px_4px_0_rgba(9,9,11,1)]">Crudo.</span>
+
+            <!-- Hero -->
+            <div class="relative brillo-calido overflow-hidden">
+                <div class="max-w-7xl mx-auto px-4 pt-14 pb-16 md:pt-20 md:pb-24 grid lg:grid-cols-2 gap-14 lg:gap-10 items-center">
+                    <div>
+                        <p class="italic font-extrabold text-rojo text-xl">Así es Kikos…</p>
+                        <h1 class="font-display uppercase text-5xl sm:text-7xl xl:text-8xl leading-[0.95] mt-3">
+                            Pollo, carne<br><span class="texto-rotulo">y mucho más…</span>
                         </h1>
-                        <p class="text-xl md:text-2xl font-bold mb-10 max-w-lg bg-dark text-white p-4 border-2 border-dark shadow-[4px_4px_0_rgba(255,200,0,1)]">
-                            Tradición inquebrantable. El asado más intenso de la ciudad. Sin excusas, solo sabor.
+                        <p class="mt-6 text-lg md:text-xl text-cafe-suave max-w-xl">
+                            Somos un asadero en el centro de Popayán, en el barrio Santa Inés. Atendemos las 24 horas y recibimos tus pedidos por WhatsApp.
                         </p>
-                        <a href="#/menu" class="inline-block bg-secondary text-dark border-4 border-dark font-display text-3xl px-10 py-4 shadow-brutal hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all uppercase">
-                            Exigir Menú
-                        </a>
+                        <div class="mt-9 flex flex-wrap gap-3">
+                            <a href="#/menu" class="inline-flex items-center gap-2 h-14 px-7 rounded-full bg-rojo text-white font-extrabold text-lg shadow-calida hover:bg-rojo-oscuro transition-colors">
+                                Ver el menú
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                            </a>
+                            <a data-wa href="https://wa.me/573234444033" target="_blank" rel="noopener" class="inline-flex items-center gap-2 h-14 px-7 rounded-full bg-white text-cafe font-extrabold text-lg shadow-calida ring-1 ring-arena hover:ring-cafe/30 transition">
+                                <svg class="w-5 h-5 text-whatsapp" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-whatsapp"/></svg>
+                                Pedir por WhatsApp
+                            </a>
+                        </div>
+                        <dl class="mt-12 grid grid-cols-3 gap-4 max-w-lg border-t border-arena pt-6">
+                            <div><dt class="sr-only">Horario</dt><dd class="font-display text-3xl text-rojo">24H</dd><dd class="text-sm text-cafe-suave">Atención todo el día</dd></div>
+                            <div><dt class="sr-only">Domicilios</dt><dd class="font-display text-3xl text-rojo">A casa</dd><dd class="text-sm text-cafe-suave">Domicilios por WhatsApp</dd></div>
+                            <div><dt class="sr-only">Sede</dt><dd class="font-display text-3xl text-rojo">Centro</dd><dd class="text-sm text-cafe-suave">Barrio Santa Inés</dd></div>
+                        </dl>
                     </div>
 
-                    <div class="flex-1 relative w-full h-[400px] md:h-[600px] border-4 border-dark shadow-brutal overflow-hidden bg-white">
-                        <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" class="absolute inset-0 w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt="Asado Kikos">
-                    </div>
-                </div>
+                    <div class="relative mx-auto w-full max-w-md lg:max-w-lg">
+                        <div class="absolute -inset-6 rounded-full bg-amarillo/40 blur-3xl" aria-hidden="true"></div>
+                        <figure class="relative">
+                            <img src="/img/referencia/pollo-asado-portada.jpg" alt="Pollo asado entero sobre un plato (imagen de referencia)" class="aspect-square w-full object-cover rounded-[2.5rem] shadow-calida-lg ring-8 ring-white" width="900" height="900" fetchpriority="high">
+                            <figcaption class="absolute bottom-5 left-5 rounded-full bg-white/90 text-cafe text-xs font-extrabold px-3 py-1">Imagen de referencia</figcaption>
+                        </figure>
 
-                <!-- Marquee -->
-                <div class="bg-dark text-primary border-t-4 border-dark py-4 overflow-hidden flex whitespace-nowrap font-display text-5xl border-b-4">
-                    <div class="animate-marquee inline-block">
-                        &nbsp;🔥 CARNE REAL 🔥 FUEGO REAL 🔥 SABOR REAL 🔥 KIKOS 🔥 CARNE REAL 🔥 FUEGO REAL 🔥 SABOR REAL 🔥 KIKOS 🔥
-                    </div>
-                    <div class="animate-marquee inline-block">
-                        &nbsp;🔥 CARNE REAL 🔥 FUEGO REAL 🔥 SABOR REAL 🔥 KIKOS 🔥 CARNE REAL 🔥 FUEGO REAL 🔥 SABOR REAL 🔥 KIKOS 🔥
+                        <!-- Sello 24 horas (como el círculo del aviso) -->
+                        <div class="absolute -top-6 -left-3 sm:-left-8 w-28 h-28 sm:w-36 sm:h-36 drop-shadow-lg" aria-hidden="true">
+                            <svg viewBox="0 0 120 120" class="absolute inset-0 w-full h-full motion-safe:animate-girar">
+                                <defs><path id="circulo-sello" d="M60,60 m-47,0 a47,47 0 1,1 94,0 a47,47 0 1,1 -94,0"/></defs>
+                                <circle cx="60" cy="60" r="58" fill="#FFF6E6"/>
+                                <circle cx="60" cy="60" r="58" fill="none" stroke="#E91C01" stroke-width="4"/>
+                                <text font-family="Nunito Sans" font-weight="800" font-size="11" letter-spacing="3.2" fill="#2A1206"><textPath href="#circulo-sello">SERVICIO · 24 HORAS · SERVICIO · 24 HORAS ·</textPath></text>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-cafe leading-none">
+                                <span class="font-display text-4xl sm:text-5xl">24</span>
+                                <span class="font-extrabold text-[10px] sm:text-xs tracking-widest">HORAS</span>
+                            </div>
+                        </div>
+
+                        <img src="/img/pollito-chef.png" alt="" aria-hidden="true" class="absolute -bottom-8 -right-2 sm:-right-6 w-28 sm:w-36 drop-shadow-xl" width="134" height="140">
                     </div>
                 </div>
             </div>
 
-            <!-- Features -->
-            <div class="bg-surface py-20 border-b-4 border-dark">
-                <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="bg-white border-4 border-dark p-8 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-2 transition-all">
-                        <div class="font-display text-6xl text-primary mb-4 font-bold border-b-4 border-dark pb-2">01</div>
-                        <h3 class="font-display text-4xl text-dark mb-4 uppercase">Instinto</h3>
-                        <p class="text-xl font-medium text-gray-700">Carnes seleccionadas con rigor. Asadas a la perfección. Nuestro sazón no pide permiso.</p>
+            <!-- Franja del rótulo -->
+            <div class="bg-rotulo-x text-cafe overflow-hidden py-3" aria-hidden="true">
+                <div class="flex w-max motion-safe:animate-marquesina font-display uppercase text-2xl md:text-3xl whitespace-nowrap">
+                    <div class="flex items-center gap-8 pr-8">
+                        <span>Así es Kikos</span><svg class="w-6 h-6"><use href="#icono-llama"/></svg>
+                        <span>Pollo, carne y mucho más…</span><svg class="w-6 h-6"><use href="#icono-llama"/></svg>
+                        <span>Servicio 24 horas</span><svg class="w-6 h-6"><use href="#icono-llama"/></svg>
+                        <span>Domicilios 323 444 4033</span><svg class="w-6 h-6"><use href="#icono-llama"/></svg>
                     </div>
-                    <div class="bg-white border-4 border-dark p-8 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-2 transition-all">
-                        <div class="font-display text-6xl text-primary mb-4 font-bold border-b-4 border-dark pb-2">02</div>
-                        <h3 class="font-display text-4xl text-dark mb-4 uppercase">Velocidad</h3>
-                        <p class="text-xl font-medium text-gray-700">Tu comida caliente. Fresca. Directo a tu puerta antes de que el hambre gane.</p>
-                    </div>
-                    <div class="bg-secondary border-4 border-dark p-8 shadow-brutal-sm hover:shadow-brutal hover:-translate-y-2 transition-all">
-                        <div class="font-display text-6xl text-dark mb-4 font-bold border-b-4 border-dark pb-2">03</div>
-                        <h3 class="font-display text-4xl text-dark mb-4 uppercase">Poder</h3>
-                        <p class="text-xl font-bold text-dark">Calidad absoluta. Porciones reales para apetitos reales. Aquí no jugamos.</p>
+                    <div class="flex items-center gap-8 pr-8">
+                        <span>Así es Kikos</span><svg class="w-6 h-6"><use href="#icono-llama"/></svg>
+                        <span>Pollo, carne y mucho más…</span><svg class="w-6 h-6"><use href="#icono-llama"/></svg>
+                        <span>Servicio 24 horas</span><svg class="w-6 h-6"><use href="#icono-llama"/></svg>
+                        <span>Domicilios 323 444 4033</span><svg class="w-6 h-6"><use href="#icono-llama"/></svg>
                     </div>
                 </div>
             </div>
 
-            <!-- Destacados -->
-            <div class="bg-primary py-24 border-b-4 border-dark">
+            <!-- Favoritos -->
+            <div class="py-16 md:py-24">
                 <div class="max-w-7xl mx-auto px-4">
-                    <h2 class="font-display text-5xl md:text-7xl font-extrabold text-center text-dark mb-4 uppercase leading-none">Los Elegidos</h2>
-                    <p class="text-center text-white text-2xl mb-16 font-bold font-display uppercase tracking-widest bg-dark inline-block px-4 mx-auto block w-max shadow-brutal-sm">Nadie pide otra cosa</p>
-                    
-                    <div id="destacados-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <div class="col-span-full text-center p-12 text-dark font-display text-3xl animate-pulse">Cargando bestias...</div>
-                    </div>
-                    
-                    <div class="mt-16 text-center">
-                        <a href="#/menu" class="inline-block bg-dark text-white font-display text-3xl px-10 py-4 shadow-brutal hover:shadow-none hover:translate-x-2 hover:translate-y-2 transition-all uppercase border-4 border-dark hover:bg-white hover:text-dark">
-                            Desatar el Menú
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+                        <div>
+                            <p class="font-extrabold text-rojo-oscuro uppercase tracking-widest text-sm">Recomendados de la casa</p>
+                            <h2 class="font-display uppercase text-4xl md:text-6xl mt-2">Nuestras recomendaciones</h2>
+                        </div>
+                        <a href="#/menu" class="inline-flex items-center gap-2 font-extrabold text-rojo-oscuro hover:underline underline-offset-4">
+                            Ver todo el menú
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                         </a>
+                    </div>
+                    <div id="destacados-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true">
+                        <div class="rounded-3xl bg-white shadow-calida h-96 animate-pulse"></div>
+                        <div class="rounded-3xl bg-white shadow-calida h-96 animate-pulse hidden sm:block"></div>
+                        <div class="rounded-3xl bg-white shadow-calida h-96 animate-pulse hidden lg:block"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pollo, carne y mucho más -->
+            <div class="bg-white">
+                <div class="max-w-7xl mx-auto px-4 py-16 md:py-24">
+                    <h2 class="font-display uppercase text-4xl md:text-6xl text-center">Lo que encuentras <span class="texto-rotulo">en Kikos</span></h2>
+                    <p class="text-center text-cafe-suave mt-3">Las fotos de esta sección son imágenes de referencia.</p>
+                    <div class="mt-10 grid md:grid-cols-3 gap-6">
+                        <a href="#/menu" class="group rounded-3xl bg-crema overflow-hidden ring-1 ring-arena hover:shadow-calida-lg transition-shadow">
+                            <div class="h-64 md:h-72 overflow-hidden">
+                                <img src="/img/referencia/pollo-asado-sarten.jpg" alt="Pollo asado entero en una sartén (imagen de referencia)" width="800" height="700" loading="lazy" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                            </div>
+                            <div class="p-6"><p class="font-display uppercase text-3xl">Pollo asado</p><p class="text-cafe-suave">Mira las presentaciones y precios en el menú</p></div>
+                        </a>
+                        <a href="#/menu" class="group rounded-3xl bg-crema overflow-hidden ring-1 ring-arena hover:shadow-calida-lg transition-shadow">
+                            <div class="h-64 md:h-72 overflow-hidden">
+                                <img src="/img/referencia/carne-asada.jpg" alt="Carne asada con papas a la francesa (imagen de referencia)" width="800" height="700" loading="lazy" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                            </div>
+                            <div class="p-6"><p class="font-display uppercase text-3xl">Carnes</p><p class="text-cafe-suave">Mira las opciones disponibles en el menú</p></div>
+                        </a>
+                        <a href="#/menu" class="group rounded-3xl bg-crema overflow-hidden ring-1 ring-arena hover:shadow-calida-lg transition-shadow">
+                            <div class="h-64 md:h-72 overflow-hidden">
+                                <img src="/img/referencia/picada.jpg" alt="Bandeja con carnes, pollo y papas (imagen de referencia)" width="800" height="700" loading="lazy" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                            </div>
+                            <div class="p-6"><p class="font-display uppercase text-3xl">Y mucho más</p><p class="text-cafe-suave">Combos, adicionales, bebidas y más en el menú</p></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cómo pedir -->
+            <div class="py-16 md:py-24">
+                <div class="max-w-7xl mx-auto px-4">
+                    <p class="font-extrabold text-rojo-oscuro uppercase tracking-widest text-sm text-center">Paso a paso</p>
+                    <h2 class="font-display uppercase text-4xl md:text-6xl text-center mt-2">Así pides en Kikos</h2>
+                    <ol class="mt-12 grid md:grid-cols-3 gap-6">
+                        <li class="rounded-3xl bg-white p-8 shadow-calida">
+                            <span class="grid place-items-center w-14 h-14 rounded-full bg-rotulo font-display text-2xl text-cafe">1</span>
+                            <h3 class="font-display uppercase text-2xl mt-5">Elige en el menú</h3>
+                            <p class="mt-2 text-cafe-suave">Agrega a tu pedido el pollo, las carnes, los acompañantes y las bebidas que quieras.</p>
+                        </li>
+                        <li class="rounded-3xl bg-white p-8 shadow-calida">
+                            <span class="grid place-items-center w-14 h-14 rounded-full bg-rotulo font-display text-2xl text-cafe">2</span>
+                            <h3 class="font-display uppercase text-2xl mt-5">Envíalo por WhatsApp</h3>
+                            <p class="mt-2 text-cafe-suave">Te llega el pedido armado a nuestro chat. Ahí te confirmamos el valor del domicilio y el tiempo.</p>
+                        </li>
+                        <li class="rounded-3xl bg-white p-8 shadow-calida">
+                            <span class="grid place-items-center w-14 h-14 rounded-full bg-rotulo font-display text-2xl text-cafe">3</span>
+                            <h3 class="font-display uppercase text-2xl mt-5">Recíbelo o recógelo</h3>
+                            <p class="mt-2 text-cafe-suave">Elige domicilio o recoger en el local. Antes de preparar tu pedido te confirmamos el valor total y el tiempo estimado.</p>
+                        </li>
+                    </ol>
+                    <div class="mt-10 text-center">
+                        <a href="#/menu" class="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-rojo text-white font-extrabold text-lg hover:bg-rojo-oscuro transition-colors shadow-calida">Armar mi pedido</a>
                     </div>
                 </div>
             </div>
 
             <!-- Ubicación -->
-            <div class="bg-surface py-24">
-                <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div class="border-4 border-dark p-8 md:p-12 bg-white shadow-brutal relative">
-                        <div class="absolute -top-6 -right-6 bg-secondary font-display text-3xl border-4 border-dark px-4 py-2 transform rotate-6 shadow-brutal-sm">UBICACIÓN</div>
-                        <h2 class="font-display text-6xl font-extrabold text-dark mb-8 uppercase">Territorio Kikos</h2>
-                        
-                        <ul class="space-y-8 text-xl font-medium">
-                            <li class="flex items-start gap-4">
-                                <div class="bg-primary text-white border-2 border-dark p-3 shadow-brutal-sm">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                </div>
-                                <div>
-                                    <h4 class="font-display text-2xl text-dark uppercase mb-1">Zona Cero</h4>
-                                    <p class="text-gray-800">Calle Principal #123, Centro de la Ciudad</p>
-                                </div>
+            <div id="ubicacion" class="bg-white scroll-mt-20">
+                <div class="max-w-7xl mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-2 gap-10 items-center">
+                    <div>
+                        <p class="italic font-extrabold text-rojo text-xl">Te esperamos</p>
+                        <h2 class="font-display uppercase text-4xl md:text-6xl mt-2">Visítanos en el centro</h2>
+                        <span class="mt-5 inline-flex items-center gap-2 rounded-full bg-amarillo text-cafe font-extrabold px-5 h-10">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Atención 24 horas
+                        </span>
+                        <ul class="mt-8 space-y-6 text-lg">
+                            <li class="flex gap-4">
+                                <span class="shrink-0 grid place-items-center w-12 h-12 rounded-full bg-amarillo/25 text-rojo">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </span>
+                                <div><p class="font-extrabold">Sede Centro</p><p class="text-cafe-suave">Calle 7a #2A-30, barrio Santa Inés<br>Popayán, Cauca</p></div>
                             </li>
-                            <li class="flex items-start gap-4">
-                                <div class="bg-primary text-white border-2 border-dark p-3 shadow-brutal-sm">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                </div>
-                                <div>
-                                    <h4 class="font-display text-2xl text-dark uppercase mb-1">Horas Críticas</h4>
-                                    <p class="text-gray-800 font-bold bg-secondary px-2 inline-block">Abierto 24 Horas</p>
-                                </div>
+                            <li class="flex gap-4">
+                                <span class="shrink-0 grid place-items-center w-12 h-12 rounded-full bg-amarillo/25 text-rojo">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </span>
+                                <div><p class="font-extrabold">Horario</p><p class="text-cafe-suave">Atención 24 horas</p></div>
                             </li>
-                            <li class="flex items-start gap-4">
-                                <div class="bg-primary text-white border-2 border-dark p-3 shadow-brutal-sm">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                </div>
-                                <div>
-                                    <h4 class="font-display text-2xl text-dark uppercase mb-1">Línea Directa</h4>
-                                    <p class="text-gray-800">+1 234 567 8900</p>
-                                </div>
+                            <li class="flex gap-4">
+                                <span class="shrink-0 grid place-items-center w-12 h-12 rounded-full bg-amarillo/25 text-rojo">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-whatsapp"/></svg>
+                                </span>
+                                <div><p class="font-extrabold">Pedidos y domicilios</p><a data-wa href="https://wa.me/573234444033" target="_blank" rel="noopener" class="text-cafe-suave hover:text-rojo-oscuro underline underline-offset-4">WhatsApp 323 444 4033</a></div>
                             </li>
                         </ul>
+                        <div class="mt-9 flex flex-wrap gap-3">
+                            <a data-maps href="https://www.google.com/maps/search/?api=1&query=Asadero+Kikos+Calle+7a+2A-30+Popay%C3%A1n" target="_blank" rel="noopener" class="inline-flex items-center gap-2 h-12 px-6 rounded-full bg-rojo text-white font-extrabold hover:bg-rojo-oscuro transition-colors shadow-calida">Cómo llegar</a>
+                            <a data-wa href="https://wa.me/573234444033" target="_blank" rel="noopener" class="inline-flex items-center gap-2 h-12 px-6 rounded-full bg-crema text-cafe font-extrabold ring-1 ring-linea hover:bg-arena transition">Escríbenos por WhatsApp</a>
+                        </div>
                     </div>
-                    <div class="h-[500px] bg-dark border-4 border-dark flex items-center justify-center shadow-brutal">
-                        <span class="text-white font-display text-4xl uppercase tracking-widest border-4 border-white p-4 transform -rotate-12">Mapa Bloqueado</span>
+                    <!-- El mapa de Google solo se carga si la persona lo pide (evita cookies de terceros sin consentimiento) -->
+                    <div id="mapa" class="rounded-3xl overflow-hidden ring-1 ring-arena shadow-calida-lg h-[340px] md:h-[440px] bg-arena">
+                        <div class="h-full flex flex-col items-center justify-center text-center gap-4 p-8">
+                            <svg class="w-12 h-12 text-rojo-oscuro" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <p class="font-extrabold text-lg">Calle 7a #2A-30, barrio Santa Inés, Popayán</p>
+                            <p class="text-cafe-suave max-w-sm">El mapa lo ofrece Google. Al cargarlo, Google puede recibir tu dirección IP y usar cookies. <a href="/cookies" class="underline underline-offset-4 text-rojo-oscuro">Más información</a></p>
+                            <button type="button" id="cargar-mapa" class="inline-flex items-center h-12 px-6 rounded-full bg-white text-cafe font-extrabold shadow-calida ring-1 ring-linea hover:bg-crema transition cursor-pointer">Cargar mapa de Google</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- =======================
-             VIEW: MENU 
-             ======================= -->
-        <section id="view-menu" class="spa-view bg-surface py-20 border-b-4 border-dark">
-            <div class="max-w-7xl mx-auto px-4">
-                <div class="text-center mb-16">
-                    <h2 class="font-display text-7xl md:text-9xl font-bold text-dark mb-4 uppercase">Arco de<br><span class="text-primary drop-shadow-[4px_4px_0_rgba(9,9,11,1)]">Fuego</span></h2>
+        <!-- =========================== VISTA: MENÚ =========================== -->
+        <section id="view-menu" class="spa-view">
+            <div class="brillo-calido">
+                <div class="max-w-7xl mx-auto px-4 pt-14 pb-10 md:pt-20 md:pb-14">
+                    <p class="italic font-extrabold text-rojo text-xl">Así es Kikos…</p>
+                    <h1 class="font-display uppercase text-5xl md:text-7xl mt-2">Nuestro menú</h1>
+                    <p class="mt-4 text-lg text-cafe-suave max-w-2xl">Arma tu pedido y envíalo por WhatsApp. Antes de preparar tu pedido te confirmamos el valor del domicilio y el tiempo de entrega.</p>
+                    <p class="mt-2 text-sm text-cafe-suave">Precios en pesos colombianos (COP). Algunas fotos pueden ser de referencia.</p>
                 </div>
-                
-                <!-- Filters -->
-                <div id="category-filters" class="flex flex-wrap justify-center gap-4 mb-16">
-                    <button class="filter-btn active bg-primary text-white border-4 border-dark px-8 py-3 font-display text-2xl shadow-brutal-sm hover:shadow-none hover:translate-y-1 transition-all uppercase" data-filter="all">Toda la Carne</button>
-                    <!-- Las categorías se inyectan acá -->
-                </div>
+            </div>
 
-                <!-- Grid -->
-                <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-                    <div class="col-span-full text-center p-12 text-dark font-display text-4xl animate-pulse uppercase">Forjando el menú...</div>
+            <div class="sticky top-16 md:top-20 z-30 bg-crema/95 backdrop-blur border-y border-arena">
+                <div class="max-w-7xl mx-auto px-4 py-3">
+                    <div id="category-filters" class="flex gap-2 overflow-x-auto no-scrollbar" role="group" aria-label="Filtrar por categoría">
+                        <button type="button" class="filter-btn shrink-0 h-11 px-5 rounded-full font-extrabold transition-colors cursor-pointer bg-rojo text-white" data-filter="all" aria-pressed="true">Todo</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 py-10 md:py-14">
+                <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true">
+                    <div class="rounded-3xl bg-white shadow-calida h-96 animate-pulse"></div>
+                    <div class="rounded-3xl bg-white shadow-calida h-96 animate-pulse hidden sm:block"></div>
+                    <div class="rounded-3xl bg-white shadow-calida h-96 animate-pulse hidden lg:block"></div>
                 </div>
             </div>
         </section>
 
-        <!-- =======================
-             VIEW: NOSOTROS 
-             ======================= -->
-        <section id="view-nosotros" class="spa-view bg-primary py-24 border-b-4 border-dark">
-            <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                <div class="bg-white border-4 border-dark p-8 md:p-12 shadow-brutal relative z-10">
-                    <div class="absolute -top-8 -left-8 bg-dark text-white font-display text-6xl px-4 py-2 border-4 border-dark transform -rotate-12">SANGRE</div>
-                    <h3 class="font-display text-5xl text-dark mb-6 uppercase leading-tight mt-6">Pasión por el Buen Sabor</h3>
-                    <p class="text-xl text-gray-800 leading-relaxed mb-8 font-medium">En Asadero Kikos, creemos que una buena comida es más que ingredientes; es una experiencia visceral. Desde nuestros inicios, nos hemos comprometido a ofrecer las mejores carnes asadas con nuestro sazón único, sin filtros ni adornos innecesarios.</p>
-                    
-                    <h3 class="font-display text-4xl text-dark mb-6 uppercase">Misión Cruda</h3>
-                    <p class="text-xl text-gray-800 leading-relaxed font-medium">Brindar platos de alta calidad que golpean el paladar. Nuestra visión es dominar la región destacando por un poder culinario que no puedes ignorar.</p>
+        <!-- =========================== VISTA: NOSOTROS =========================== -->
+        <section id="view-nosotros" class="spa-view">
+            <div class="brillo-calido">
+                <div class="max-w-7xl mx-auto px-4 pt-14 pb-16 md:pt-20 md:pb-24 grid lg:grid-cols-2 gap-14 items-center">
+                    <div>
+                        <p class="italic font-extrabold text-rojo text-xl">Así es Kikos…</p>
+                        <h1 class="font-display uppercase text-5xl md:text-7xl leading-[0.95] mt-2">Tu asadero en el <span class="texto-rotulo">centro de Popayán</span></h1>
+                        <p class="mt-6 text-lg text-cafe-suave">Kikos es un asadero ubicado en la Calle 7a #2A-30, en el barrio Santa Inés de Popayán. Como dice nuestro aviso: pollo, carne y mucho más.</p>
+                        <p class="mt-4 text-lg text-cafe-suave">Atendemos las 24 horas y recibimos pedidos a domicilio por WhatsApp al 323 444 4033. También puedes pasar por el local.</p>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -inset-6 rounded-full bg-amarillo/35 blur-3xl" aria-hidden="true"></div>
+                        <img src="/img/aviso-kikos.png" alt="Aviso de Asadero Kikos: Así es Kikos. Pollo, carne y mucho más. Calle 7a #2A-30, barrio Santa Inés. Servicio 24 horas. Domicilios 323 444 4033." class="relative w-full rounded-[2rem] shadow-calida-lg ring-8 ring-white object-cover aspect-[548/364]" width="548" height="364" loading="lazy">
+                    </div>
                 </div>
-                <div class="h-[600px] border-4 border-dark shadow-brutal overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544025162-8111142154ea?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover grayscale contrast-150" alt="Local">
+            </div>
+
+            <div class="bg-white">
+                <div class="max-w-7xl mx-auto px-4 py-16 md:py-24">
+                    <h2 class="font-display uppercase text-4xl md:text-6xl text-center">Lo que encuentras en Kikos</h2>
+                    <div class="mt-12 grid md:grid-cols-3 gap-6">
+                        <div class="rounded-3xl bg-crema p-8 ring-1 ring-arena">
+                            <span class="grid place-items-center w-14 h-14 rounded-2xl bg-rotulo text-cafe"><svg class="w-7 h-7"><use href="#icono-llama"/></svg></span>
+                            <h3 class="font-display uppercase text-2xl mt-5">Pollo, carne y mucho más</h3>
+                            <p class="mt-2 text-cafe-suave">Consulta en el menú los productos disponibles y sus precios.</p>
+                        </div>
+                        <div class="rounded-3xl bg-crema p-8 ring-1 ring-arena">
+                            <span class="grid place-items-center w-14 h-14 rounded-2xl bg-rotulo text-cafe"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+                            <h3 class="font-display uppercase text-2xl mt-5">Atención 24 horas</h3>
+                            <p class="mt-2 text-cafe-suave">Nuestra sede del centro atiende las 24 horas.</p>
+                        </div>
+                        <div class="rounded-3xl bg-crema p-8 ring-1 ring-arena">
+                            <span class="grid place-items-center w-14 h-14 rounded-2xl bg-rotulo text-cafe"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></span>
+                            <h3 class="font-display uppercase text-2xl mt-5">Domicilios por WhatsApp</h3>
+                            <p class="mt-2 text-cafe-suave">Arma tu pedido aquí y envíalo por WhatsApp, o recógelo en el local.</p>
+                        </div>
+                    </div>
+                    <div class="mt-12 text-center">
+                        <a href="#/menu" class="inline-flex items-center gap-2 h-14 px-8 rounded-full bg-rojo text-white font-extrabold text-lg hover:bg-rojo-oscuro transition-colors shadow-calida">Ver el menú</a>
+                    </div>
                 </div>
             </div>
         </section>
-
-
-
     </main>
 
-    <!-- Footer General -->
-    <footer id="main-footer" class="bg-dark text-white py-16 pb-28 md:pb-16 border-t-8 border-primary mt-auto relative overflow-hidden">
-        <div class="absolute -top-24 -right-10 font-display text-[200px] text-white/5 font-bold pointer-events-none transform -rotate-12">KIKOS</div>
-        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
+    <!-- =========================== PIE DE PÁGINA =========================== -->
+    <footer class="bg-arena/60 text-cafe-suave mt-auto">
+        <div class="h-1.5 bg-rotulo-x" aria-hidden="true"></div>
+        <div class="max-w-7xl mx-auto px-4 pt-14 pb-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-                <h3 class="font-display text-6xl font-extrabold text-white mb-4 tracking-tighter uppercase">KIKOS<span class="text-primary">.</span></h3>
-                <p class="text-gray-400 font-medium text-lg max-w-sm">No pidas disculpas por comer bien. El mejor asado de la ciudad a tu disposición. Cuando quieras.</p>
+                <img src="/img/logo-kikos.png" alt="Kikos — Pollo, carne y mucho más" class="h-14 w-auto" width="518" height="151" loading="lazy">
+                <p class="mt-4">Pollo, carne y mucho más en el centro de Popayán. Atención 24 horas y domicilios por WhatsApp.</p>
             </div>
             <div>
-                <h4 class="font-display text-2xl text-secondary mb-6 uppercase tracking-widest border-b-2 border-secondary inline-block pb-1">Navegación</h4>
-                <ul class="space-y-4 font-bold text-lg uppercase">
-                    <li class="group"><a href="#/home" class="hover:text-primary transition-colors flex items-center gap-2"><span class="text-primary opacity-0 -ml-4 transition-all group-hover:opacity-100 group-hover:ml-0">→</span> Inicio</a></li>
-                    <li class="group"><a href="#/menu" class="hover:text-primary transition-colors flex items-center gap-2"><span class="text-primary opacity-0 -ml-4 transition-all group-hover:opacity-100 group-hover:ml-0">→</span> Menú</a></li>
-                    <li class="group"><a href="#/nosotros" class="hover:text-primary transition-colors flex items-center gap-2"><span class="text-primary opacity-0 -ml-4 transition-all group-hover:opacity-100 group-hover:ml-0">→</span> Nosotros</a></li>
+                <h2 class="font-display uppercase text-cafe text-xl tracking-wide">Navega</h2>
+                <ul class="mt-4 space-y-2 font-semibold">
+                    <li><a href="#/home" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Inicio</a></li>
+                    <li><a href="#/menu" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Menú</a></li>
+                    <li><a href="#/nosotros" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Nosotros</a></li>
+                    <li><a href="#/ubicacion" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Ubicación</a></li>
                 </ul>
             </div>
             <div>
-                <h4 class="font-display text-2xl text-secondary mb-6 uppercase tracking-widest border-b-2 border-secondary inline-block pb-1">Protocolos</h4>
-                <ul class="space-y-4 font-bold text-lg uppercase">
-                    <li><a href="admin.html" target="_blank" class="hover:text-primary transition-colors bg-white/10 px-3 py-1 inline-block border-2 border-transparent hover:border-primary">Panel de Control</a></li>
-                    <li class="pt-6 border-t-2 border-white/20"><p class="text-gray-500 text-sm normal-case">&copy; 2026 Asadero Kikos. Todos los derechos reservados.</p></li>
+                <h2 class="font-display uppercase text-cafe text-xl tracking-wide">Contacto</h2>
+                <ul class="mt-4 space-y-2">
+                    <li>Calle 7a #2A-30, barrio Santa Inés, Popayán, Cauca</li>
+                    <li><a data-wa href="https://wa.me/573234444033" target="_blank" rel="noopener" class="hover:text-rojo-oscuro hover:underline underline-offset-4">WhatsApp 323 444 4033</a></li>
+                    <li>Atención 24 horas</li>
+                    <li>Peticiones, quejas y reclamos: <a data-dato="correo" href="/terminos#pqr" class="underline underline-offset-4">[PENDIENTE: correo]</a></li>
                 </ul>
+            </div>
+            <div>
+                <h2 class="font-display uppercase text-cafe text-xl tracking-wide">Legal</h2>
+                <ul class="mt-4 space-y-2 font-semibold">
+                    <li><a href="/terminos" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Términos y condiciones</a></li>
+                    <li><a href="/privacidad" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Política de privacidad</a></li>
+                    <li><a href="/cookies" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Política de cookies</a></li>
+                    <li><a href="/reembolsos" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Cambios, garantías y reembolsos</a></li>
+                    <li><a href="https://www.sic.gov.co" target="_blank" rel="noopener" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Superintendencia de Industria y Comercio (SIC)</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-arena">
+            <div class="max-w-7xl mx-auto px-4 py-5 pb-28 md:pb-5 flex flex-col sm:flex-row gap-2 justify-between text-sm">
+                <p>&copy; <span id="anio-actual">2026</span> <span data-dato="responsable">[PENDIENTE: razón social]</span> · NIT <span data-dato="documento">[PENDIENTE: NIT]</span></p>
+                <a href="/admin" class="hover:text-rojo-oscuro hover:underline underline-offset-4">Administración</a>
             </div>
         </div>
     </footer>
 
-    <!-- ==============================================
-         UI COMPONENTS: DRAWER, TOASTS, BOTTOM NAV
-         ============================================== -->
+    <!-- =========================== CARRITO (panel lateral) =========================== -->
+    <div id="cart-overlay" class="fixed inset-0 bg-cafe/30 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none" aria-hidden="true"></div>
 
-    <!-- Cart Offcanvas Drawer -->
-    <!-- Fondo oscuro borroso -->
-    <div id="cart-overlay" class="fixed inset-0 bg-dark/80 backdrop-blur-sm z-50 transition-opacity duration-300 opacity-0 pointer-events-none"></div>
-    
-    <!-- Drawer en sí -->
-    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-surface border-l-8 border-dark shadow-2xl z-[60] transform translate-x-full transition-transform duration-300 flex flex-col">
-        <div class="px-8 py-6 border-b-4 border-dark flex justify-between items-center bg-primary text-dark">
-            <h3 class="text-3xl font-display font-bold uppercase tracking-widest">Arsenal Pedido</h3>
-            <button id="cart-close" class="text-dark hover:text-white p-2 border-2 border-transparent hover:border-dark transition-all">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-        
-        <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 no-scrollbar">
-            <!-- Items via JS -->
-            <p class="text-center text-dark font-bold uppercase tracking-widest mt-10">Tu arsenal está vacío.</p>
-        </div>
-        
-        <div class="p-8 border-t-4 border-dark bg-white">
-            <div class="flex justify-between items-center mb-6 text-3xl font-display font-extrabold text-dark uppercase">
-                <span>Total:</span>
-                <span id="cart-total-price" class="text-primary">$0.00</span>
+    <aside id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title" aria-hidden="true" class="fixed inset-y-0 right-0 z-[60] w-full max-w-md bg-crema shadow-calida-lg flex flex-col transform translate-x-full transition-transform duration-300 invisible">
+        <div class="bg-rotulo-x text-cafe shrink-0">
+            <div class="px-6 py-5 flex items-center justify-between">
+                <div>
+                    <p class="italic font-extrabold text-sm">Así es Kikos…</p>
+                    <h2 id="cart-title" class="font-display uppercase text-3xl">Tu pedido</h2>
+                </div>
+                <button id="cart-close" type="button" class="grid place-items-center w-11 h-11 rounded-full bg-white/70 hover:bg-white transition-colors cursor-pointer" aria-label="Cerrar pedido">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-            <button id="checkout-btn" disabled class="w-full bg-dark hover:bg-primary disabled:bg-gray-400 disabled:cursor-not-allowed text-white border-4 border-dark font-display text-2xl py-5 shadow-brutal hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all uppercase flex justify-center items-center gap-3">
-                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-                Contactar a Base (WhatsApp)
+        </div>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar">
+            <ul id="cart-items-container" class="px-6 py-2"></ul>
+
+            <form id="checkout-form" class="px-6 pb-6 space-y-4" novalidate>
+                <fieldset>
+                    <legend class="font-extrabold mb-2">¿Cómo lo quieres?</legend>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="entrega" value="domicilio" class="peer sr-only" checked>
+                            <span class="flex items-center justify-center h-11 rounded-full border-2 border-linea bg-white font-extrabold peer-checked:bg-rojo peer-checked:text-white peer-checked:border-rojo peer-focus-visible:ring-2 peer-focus-visible:ring-rojo peer-focus-visible:ring-offset-2 transition-colors">Domicilio</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="entrega" value="recoger" class="peer sr-only">
+                            <span class="flex items-center justify-center h-11 rounded-full border-2 border-linea bg-white font-extrabold peer-checked:bg-rojo peer-checked:text-white peer-checked:border-rojo peer-focus-visible:ring-2 peer-focus-visible:ring-rojo peer-focus-visible:ring-offset-2 transition-colors">Recoger en el local</span>
+                        </label>
+                    </div>
+                </fieldset>
+                <div id="campo-direccion">
+                    <label for="cliente-direccion" class="block font-extrabold mb-1">Dirección de entrega <span class="font-normal text-cafe-suave">(obligatoria para domicilio)</span></label>
+                    <input id="cliente-direccion" name="direccion" type="text" autocomplete="street-address" required aria-describedby="checkout-error" class="w-full h-12 px-4 rounded-xl border-2 border-linea bg-white focus:border-cafe placeholder:text-cafe-suave/80" placeholder="Barrio, calle, número, apto">
+                </div>
+                <div>
+                    <label for="cliente-nombre" class="block font-extrabold mb-1">¿A nombre de quién? <span class="font-normal text-cafe-suave">(opcional)</span></label>
+                    <input id="cliente-nombre" name="nombre" type="text" autocomplete="given-name" class="w-full h-12 px-4 rounded-xl border-2 border-linea bg-white focus:border-cafe placeholder:text-cafe-suave/80" placeholder="Ej: Laura">
+                </div>
+                <div>
+                    <label for="cliente-notas" class="block font-extrabold mb-1">Notas <span class="font-normal text-cafe-suave">(opcional)</span></label>
+                    <textarea id="cliente-notas" name="notas" rows="2" class="w-full px-4 py-3 rounded-xl border-2 border-linea bg-white focus:border-cafe placeholder:text-cafe-suave/80" placeholder="Ej: sin ají, alergias, forma de pago"></textarea>
+                </div>
+                <div class="flex items-start gap-3">
+                    <input id="acepto-datos" name="acepto" type="checkbox" required aria-describedby="checkout-error" class="mt-1 w-5 h-5 shrink-0 accent-rojo cursor-pointer">
+                    <label for="acepto-datos" class="text-sm cursor-pointer">Autorizo el uso de estos datos solo para gestionar y entregar este pedido, según la <a href="/privacidad" target="_blank" rel="noopener" class="underline underline-offset-2 text-rojo-oscuro">Política de privacidad</a>, y acepto los <a href="/terminos" target="_blank" rel="noopener" class="underline underline-offset-2 text-rojo-oscuro">Términos y condiciones</a>.</label>
+                </div>
+                <p class="text-sm text-cafe-suave">Al enviar se abrirá WhatsApp (servicio de Meta) con tu pedido listo. Tú decides si lo envías. Esta página no guarda tu dirección ni tu nombre.</p>
+                <p id="checkout-error" class="hidden text-rojo-oscuro font-bold" role="alert"></p>
+            </form>
+        </div>
+
+        <div class="border-t border-arena bg-white px-6 py-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
+            <div class="flex items-baseline justify-between">
+                <span class="font-extrabold">Total productos</span>
+                <span id="cart-total-price" class="font-display text-3xl text-rojo">$0</span>
+            </div>
+            <p class="text-sm text-cafe-suave mt-1">El valor del domicilio te lo confirmamos por WhatsApp.</p>
+            <button id="checkout-btn" type="submit" form="checkout-form" disabled class="mt-4 w-full h-14 rounded-full bg-whatsapp hover:bg-whatsapp-oscuro disabled:bg-arena disabled:text-cafe-suave disabled:cursor-not-allowed text-white font-extrabold text-lg flex items-center justify-center gap-3 transition-colors cursor-pointer">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-whatsapp"/></svg>
+                Enviar pedido por WhatsApp
             </button>
         </div>
-    </div>
+    </aside>
 
-    <!-- Floating WhatsApp Button (Latido) -->
-    <a href="https://wa.me/YOUR_WHATSAPP_NUMBER" target="_blank" class="fixed bottom-24 md:bottom-8 right-6 z-40 bg-dark text-primary border-4 border-dark p-4 shadow-brutal hover:bg-primary hover:text-dark hover:shadow-none transition-all">
-        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+    <!-- Botón flotante de WhatsApp -->
+    <a data-wa href="https://wa.me/573234444033" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp" class="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-40 grid place-items-center w-14 h-14 rounded-full bg-whatsapp text-white shadow-calida-lg hover:bg-whatsapp-oscuro transition-colors">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><use href="#icono-whatsapp"/></svg>
     </a>
 
-    <!-- Bottom Navigation Bar (Mobile Only) -->
-    <nav id="bottom-nav" class="md:hidden fixed bottom-0 left-0 w-full bg-dark border-t-4 border-dark z-40 flex justify-around items-center h-20 pb-safe">
-        <a href="#/home" class="flex flex-col items-center justify-center w-full h-full text-white hover:text-primary transition nav-link-mobile" data-target="#/home">
-            <svg class="w-8 h-8 mb-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-            <span class="text-xs font-display uppercase tracking-widest">Base</span>
-        </a>
-        <a href="#/menu" class="flex flex-col items-center justify-center w-full h-full text-white hover:text-primary transition nav-link-mobile" data-target="#/menu">
-            <svg class="w-8 h-8 mb-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-            <span class="text-xs font-display uppercase tracking-widest">Menú</span>
-        </a>
-        <button onclick="window.appCart.toggleDrawer()" class="relative flex flex-col items-center justify-center w-full h-full text-white hover:text-primary transition">
-            <svg class="w-8 h-8 mb-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-            <span class="text-xs font-display uppercase tracking-widest">Arsenal</span>
-            <span id="mobile-cart-count" class="absolute top-2 right-8 bg-primary text-white border-2 border-dark text-xs font-bold w-5 h-5 flex items-center justify-center">0</span>
-        </button>
+    <!-- Barra de navegación inferior (móvil) -->
+    <nav id="bottom-nav" aria-label="Navegación móvil" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white text-cafe-suave border-t border-arena shadow-[0_-8px_24px_-12px_rgba(42,18,6,0.25)] pb-safe">
+        <div class="grid grid-cols-4 h-16">
+            <a href="#/home" class="nav-movil flex flex-col items-center justify-center gap-1 text-xs font-extrabold" data-target="#/home">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Inicio
+            </a>
+            <a href="#/menu" class="nav-movil flex flex-col items-center justify-center gap-1 text-xs font-extrabold" data-target="#/menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                Menú
+            </a>
+            <a href="#/ubicacion" class="nav-movil flex flex-col items-center justify-center gap-1 text-xs font-extrabold" data-target="#/ubicacion">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Ubicación
+            </a>
+            <button type="button" data-abrir-carrito class="relative flex flex-col items-center justify-center gap-1 text-xs font-extrabold text-cafe cursor-pointer" aria-label="Ver mi pedido">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                Mi pedido
+                <span id="mobile-cart-count" class="hidden absolute top-1.5 left-1/2 ml-1.5 min-w-5 h-5 px-1 rounded-full bg-rojo text-white text-[11px] items-center justify-center">0</span>
+            </button>
+        </div>
     </nav>
 
-    <!-- Scripts: SDK Supabase + Lógica -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Íconos reutilizables -->
+    <svg width="0" height="0" class="absolute" aria-hidden="true">
+        <symbol id="icono-whatsapp" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></symbol>
+        <symbol id="icono-llama" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.546 3.75 3.75 0 0 1 3.255 3.718Z"/></symbol>
+    </svg>
+
+    <!-- Scripts: SDK Supabase + lógica -->
+    <script src="/js/vendor/supabase-js-2.117.0.min.js"></script>
+    <script src="/js/config.js"></script>
     <script src="/js/supabaseClient.js"></script>
     <script src="/js/router.js"></script>
     <script src="/js/cart.js"></script>

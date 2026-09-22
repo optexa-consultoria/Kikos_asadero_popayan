@@ -21,8 +21,8 @@ This skill prioritizes **intentional design systems**, not default frameworks.
 
 ### Asadero Kikos — project notes (override generic rules below)
 
-* **The aesthetic direction is already chosen: neo-brutalist street-food.** Tokens live in the inline `tailwind.config` of `frontend/index.html` and `frontend/admin.html` (primary `#FF2A00`, secondary `#FFC800`, dark `#09090b`, surface `#f4f4f0`; Oswald for display, Archivo for body; `shadow-brutal*` hard offset shadows). New work must extend this system, not start a new one — unless the user explicitly asks for a redesign.
-* **"Use CSS variables exclusively" → here it means Tailwind theme tokens.** Add new colors/shadows/fonts to `tailwind.config` (keep both HTML files in sync) and use the classes (`bg-primary`, `shadow-brutal`), never raw hex values in markup.
+* **The aesthetic direction is already chosen: "Rótulo clásico" (claro)** — the real storefront sign (yellow → orange → red gradient, "24 horas" seal, chicken-chef mascot) on **light backgrounds only** (crema/white/arena). The client explicitly rejected dark sections, neon and the scalloped-awning divider — do not reintroduce them. Source of truth: `design-system/asadero-kikos/MASTER.md`; tokens in `frontend/js/tailwind.config.js`; brand utilities in `frontend/css/kikos.css`. New work must extend this system, not start a new one — unless the user explicitly asks for a redesign.
+* **"Use CSS variables exclusively" → here it means Tailwind theme tokens.** Add new colors/shadows/fonts to `frontend/js/tailwind.config.js` (shared by index.html and admin.html) and use the classes (`bg-rojo`, `text-cafe`, `shadow-calida`), never raw hex values in markup.
 * **Stack:** static HTML + Tailwind CDN + vanilla JS (`frontend/js/*.js`, hash router in `router.js`). No React, no build step, no Framer Motion — animations are CSS-first.
 * **Audience:** hungry customers on mobile in Colombia ordering through WhatsApp. Mobile-first, fast, clear prices in COP, obvious "pedir" CTA. All UI copy in Spanish.
 * For palettes/fonts/UX rules consult the `ui-ux-pro-max` skill; audit the result with `web-design-guidelines`.

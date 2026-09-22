@@ -1,312 +1,311 @@
 /**
- * Lógica del Panel de Administración (B2B) - SPA & Tailwind
+ * Panel de administración: inicio de sesión con Supabase Auth y CRUD de productos.
+ * Importante: lo que puede hacer un usuario autenticado lo definen las políticas RLS en Supabase.
  */
 
+const IMAGEN_VACIA = '/img/pollito-chef.png';
+let productosAdmin = []; // Caché de la tabla para editar sin volver a consultar
+
+// ---------------------------------------------------------------
+// Sesión
+// ---------------------------------------------------------------
 window.checkAdminSession = async function () {
-    console.log("checkAdminSession llamado");
-    const sessionResponse = await supabaseApp.auth.getSession();
-    console.log("Respuesta de getSession:", sessionResponse);
-    const { data: { session }, error } = sessionResponse;
-    
+    const { data: { session }, error } = await supabaseApp.auth.getSession();
+
     const loginView = document.getElementById('view-admin-login');
     const dashboardView = document.getElementById('view-admin-dashboard');
+    const haySesion = !error && session;
 
-    if (error || !session) {
-        console.log("No hay sesion, mostrando login");
-        if (dashboardView) dashboardView.classList.remove('active');
-        if (loginView) loginView.classList.add('active');
-        return;
-    }
+    loginView?.classList.toggle('active', !haySesion);
+    dashboardView?.classList.toggle('active', Boolean(haySesion));
 
-    console.log("Sesion valida, mostrando dashboard");
-
-    // UI del Admin
-    if (loginView) loginView.classList.remove('active');
-    if (dashboardView) dashboardView.classList.add('active');
-    loadAdminProducts();
+    if (haySesion) loadAdminProducts();
 };
 
-// Listen para cambios de Auth globales
-supabaseApp.auth.onAuthStateChange((event, session) => {
-    window.checkAdminSession();
+// Reaccionar solo a entrar / salir (la revisión inicial se hace al cargar la página)
+supabaseApp.auth.onAuthStateChange((evento) => {
+    if (evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') window.checkAdminSession();
 });
 
-console.log("admin.js cargado correctamente");
+function mostrarToast(mensaje, tipo = 'ok') {
+    const contenedor = document.getElementById('toast-container');
+    if (!contenedor) return;
+    const toast = document.createElement('div');
+    toast.className = `pointer-events-auto rounded-full px-5 py-3 font-extrabold shadow-calida-lg transition-opacity duration-300 ${tipo === 'error' ? 'bg-rojo text-white' : 'bg-white text-cafe ring-1 ring-arena'}`;
+    toast.textContent = mensaje;
+    contenedor.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 2600);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM cargado en admin.html");
-    // ----------------------------------------------------------------
-    // 1. Lógica de Login
-    // ----------------------------------------------------------------
+    window.checkAdminSession();
+
+    // -----------------------------------------------------------
+    // 1. Inicio de sesión
+    // -----------------------------------------------------------
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
     const loginBtn = document.getElementById('login-btn');
 
-    if (loginForm) {
-        console.log("Formulario de login encontrado. Añadiendo evento submit.");
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            console.log("Boton Entrar al Sistema presionado.");
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<span class="animate-pulse">Iniciando...</span>';
-            loginError.classList.add('hidden');
+    loginForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Ingresando…';
+        loginError.classList.add('hidden');
 
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
 
-            try {
-                console.log("Enviando petición a Supabase...");
-                const result = await supabaseApp.auth.signInWithPassword({ email, password });
-                console.log("Respuesta de Supabase recibida:", result);
-
-                if (result.error) {
-                    throw result.error;
-                }
-
-                // Si llegamos aquí, fue exitoso
-                console.log("Login exitoso, llamando a checkAdminSession...");
-                loginForm.reset();
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Entrar al Sistema';
-                window.checkAdminSession();
-
-            } catch (err) {
-                console.error("Error en login (capturado):", err);
-
-                let errorMsg = err.message || 'Credenciales incorrectas o error de conexión.';
-                // Manejar error de email no confirmado específicamente (muy común)
-                if (err.message.includes('Email not confirmed')) {
-                    errorMsg = 'Error: Falta confirmar el correo. Por favor revisa la bandeja de entrada o desactiva "Confirm email" en Supabase.';
-                }
-
-                loginError.textContent = errorMsg;
-                loginError.classList.remove('hidden');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Entrar al Sistema';
-
-                alert(errorMsg);
+        try {
+            const { error } = await supabaseApp.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            loginForm.reset(); // El evento SIGNED_IN muestra el panel
+        } catch (err) {
+            let mensaje = 'Correo o contraseña incorrectos.';
+            if (err.message?.includes('Email not confirmed')) {
+                mensaje = 'Falta confirmar el correo. Revisa tu bandeja de entrada o desactiva "Confirm email" en Supabase.';
+            } else if (err.message?.toLowerCase().includes('fetch')) {
+                mensaje = 'No hay conexión con el servidor. Intenta de nuevo en un momento.';
             }
-        });
-    }
-
-    // ----------------------------------------------------------------
-    // 2. Logout
-    // ----------------------------------------------------------------
-    const logoutBtn = document.getElementById('admin-logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            await supabaseApp.auth.signOut();
-            window.checkAdminSession();
-        });
-    }
-
-    // ----------------------------------------------------------------
-    // 3. Modal CRUD Setup (Tailwind Classes)
-    // ----------------------------------------------------------------
-    const modalOverlay = document.getElementById('admin-modal-overlay');
-    const modalContent = document.getElementById('admin-modal-content');
-    const btnAdd = document.getElementById('btn-add-product');
-    const form = document.getElementById('product-form');
-
-    const closeBtns = document.querySelectorAll('.admin-modal-close');
-
-    const toggleModal = () => {
-        const isClosed = modalOverlay.classList.contains('opacity-0');
-        if (isClosed) {
-            // Abrir
-            modalOverlay.classList.remove('opacity-0', 'pointer-events-none');
-            modalContent.classList.remove('scale-95');
-            modalContent.classList.add('scale-100');
-        } else {
-            // Cerrar
-            modalOverlay.classList.add('opacity-0', 'pointer-events-none');
-            modalContent.classList.remove('scale-100');
-            modalContent.classList.add('scale-95');
-
-            // Reset form
-            setTimeout(() => {
-                form.reset();
-                document.getElementById('prod-id').value = '';
-                document.getElementById('prod-url-imagen-actual').value = '';
-                document.getElementById('upload-status').textContent = '';
-                document.getElementById('modal-title').textContent = 'Añadir Producto';
-            }, 300);
+            loginError.textContent = mensaje;
+            loginError.classList.remove('hidden');
+        } finally {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Ingresar';
         }
-    };
+    });
 
-    if (btnAdd) btnAdd.addEventListener('click', toggleModal);
-    closeBtns.forEach(btn => btn.addEventListener('click', toggleModal));
+    // -----------------------------------------------------------
+    // 2. Cerrar sesión
+    // -----------------------------------------------------------
+    document.getElementById('admin-logout-btn')?.addEventListener('click', async () => {
+        await supabaseApp.auth.signOut(); // El evento SIGNED_OUT vuelve al inicio de sesión
+    });
 
-    // ----------------------------------------------------------------
-    // 4. Submit Formulario (Crear/Editar)
-    // ----------------------------------------------------------------
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitBtn = document.getElementById('save-product-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Guardando...';
+    // -----------------------------------------------------------
+    // 3. Modal de producto
+    // -----------------------------------------------------------
+    const form = document.getElementById('product-form');
+    const precioInput = document.getElementById('prod-precio');
+    const precioVista = document.getElementById('prod-precio-vista');
 
-            try {
-                const id = document.getElementById('prod-id').value;
-                const nombre = document.getElementById('prod-nombre').value;
-                const desc = document.getElementById('prod-descripcion').value;
-                const precio = parseFloat(document.getElementById('prod-precio').value);
-                const categoria = document.getElementById('prod-categoria').value;
-                const activo = document.getElementById('prod-activo').checked;
-                const destacado = document.getElementById('prod-destacado').checked;
+    document.getElementById('btn-add-product')?.addEventListener('click', () => abrirModal());
+    document.querySelectorAll('.admin-modal-close').forEach((btn) => btn.addEventListener('click', cerrarModal));
+    document.getElementById('admin-modal-overlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'admin-modal-overlay') cerrarModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') cerrarModal();
+    });
 
-                let urlImagen = document.getElementById('prod-url-imagen-actual').value;
-                const fileInput = document.getElementById('prod-imagen');
+    precioInput?.addEventListener('input', () => {
+        precioVista.textContent = precioInput.value ? `Se verá como ${formatCOP(precioInput.value)}` : '';
+    });
 
-                // Si hay un archivo nuevo, subirlo a Supabase Storage
-                if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+    // Editar / eliminar desde la tabla (delegación de eventos)
+    document.getElementById('admin-products-tbody')?.addEventListener('click', (e) => {
+        const boton = e.target.closest('[data-accion]');
+        if (!boton) return;
+        if (boton.dataset.accion === 'editar') editProduct(boton.dataset.id);
+        if (boton.dataset.accion === 'eliminar') deleteProduct(boton.dataset.id);
+    });
 
-                    document.getElementById('upload-status').textContent = 'Subiendo imagen...';
+    // -----------------------------------------------------------
+    // 4. Guardar (crear / editar)
+    // -----------------------------------------------------------
+    form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('save-product-btn');
+        const uploadStatus = document.getElementById('upload-status');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Guardando…';
 
-                    const { error: uploadError } = await supabaseApp.storage
-                        .from('productos-imagenes')
-                        .upload(`public/${fileName}`, file);
+        try {
+            const id = document.getElementById('prod-id').value;
+            let urlImagen = document.getElementById('prod-url-imagen-actual').value;
+            const fileInput = document.getElementById('prod-imagen');
 
-                    if (uploadError) throw uploadError;
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
 
-                    // Obtener URL pública
-                    const { data: { publicUrl } } = supabaseApp.storage
-                        .from('productos-imagenes')
-                        .getPublicUrl(`public/${fileName}`);
+                uploadStatus.textContent = 'Subiendo foto…';
+                const { error: uploadError } = await supabaseApp.storage
+                    .from('productos-imagenes')
+                    .upload(`public/${fileName}`, file);
+                if (uploadError) throw uploadError;
 
-                    urlImagen = publicUrl;
-                }
-
-                const productData = {
-                    Nombre: nombre,
-                    Descripcion: desc,
-                    Precio: precio,
-                    Categoria: categoria,
-                    Activo: activo,
-                    Destacado: destacado,
-                    URL_Imagen: urlImagen
-                };
-
-                if (id) {
-                    // Update
-                    const { error } = await supabaseApp.from('productos').update(productData).eq('ID', id);
-                    if (error) throw error;
-                } else {
-                    // Insert
-                    const { error } = await supabaseApp.from('productos').insert([productData]);
-                    if (error) throw error;
-                }
-
-                toggleModal();
-                loadAdminProducts();
-
-            } catch (error) {
-                console.error('Error guardando producto:', error);
-                alert('Error al guardar: ' + error.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Guardar';
+                const { data: { publicUrl } } = supabaseApp.storage
+                    .from('productos-imagenes')
+                    .getPublicUrl(`public/${fileName}`);
+                urlImagen = publicUrl;
             }
-        });
-    }
+
+            const productData = {
+                Nombre: document.getElementById('prod-nombre').value.trim(),
+                Descripcion: document.getElementById('prod-descripcion').value.trim(),
+                Precio: Math.round(Number(precioInput.value)),
+                Categoria: document.getElementById('prod-categoria').value,
+                Activo: document.getElementById('prod-activo').checked,
+                Destacado: document.getElementById('prod-destacado').checked,
+                URL_Imagen: urlImagen || null,
+            };
+
+            const { error } = id
+                ? await supabaseApp.from('productos').update(productData).eq('ID', id)
+                : await supabaseApp.from('productos').insert([productData]);
+            if (error) throw error;
+
+            cerrarModal();
+            mostrarToast(id ? 'Producto actualizado' : 'Producto creado');
+            loadAdminProducts();
+        } catch (error) {
+            console.error('Error guardando producto:', error);
+            uploadStatus.textContent = `No se pudo guardar: ${error.message}`;
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Guardar producto';
+        }
+    });
 });
 
+let focoAntesDelModal = null;
+let liberarFocoModal = null;
+
+function abrirModal(titulo = 'Nuevo producto') {
+    focoAntesDelModal = document.activeElement;
+    document.getElementById('modal-title').textContent = titulo;
+    document.getElementById('admin-modal-overlay').classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+    const contenido = document.getElementById('admin-modal-content');
+    contenido.classList.remove('scale-95');
+    contenido.classList.add('scale-100');
+    liberarFocoModal = window.atraparFoco(contenido);
+    setTimeout(() => document.getElementById('prod-nombre').focus(), 50);
+}
+
+function cerrarModal() {
+    const overlay = document.getElementById('admin-modal-overlay');
+    if (overlay.classList.contains('opacity-0')) return;
+    overlay.classList.add('opacity-0', 'pointer-events-none');
+    const contenido = document.getElementById('admin-modal-content');
+    contenido.classList.remove('scale-100');
+    contenido.classList.add('scale-95');
+    liberarFocoModal?.();
+    focoAntesDelModal?.focus?.();
+
+    setTimeout(() => {
+        overlay.classList.add('invisible'); // Fuera del orden de tabulación mientras está cerrado
+        document.getElementById('product-form').reset();
+        document.getElementById('prod-id').value = '';
+        document.getElementById('prod-url-imagen-actual').value = '';
+        document.getElementById('upload-status').textContent = '';
+        document.getElementById('prod-precio-vista').textContent = '';
+    }, 300);
+}
+
+// ---------------------------------------------------------------
+// Tabla de productos
+// ---------------------------------------------------------------
 async function loadAdminProducts() {
     const tbody = document.getElementById('admin-products-tbody');
+    const resumen = document.getElementById('admin-resumen');
     if (!tbody) return;
 
     try {
         const { data, error } = await supabaseApp
             .from('productos')
             .select('*')
-            .order('Categoria', { ascending: true });
-
+            .order('Categoria', { ascending: true })
+            .order('Nombre', { ascending: true });
         if (error) throw error;
 
+        productosAdmin = data;
+        const activos = data.filter((p) => p.Activo).length;
+        resumen.textContent = `${data.length} productos · ${activos} visibles en el menú`;
+
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-dark font-display text-2xl uppercase border-b-4 border-dark">No hay inventario registrado.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-10 text-center text-cafe-suave">Todavía no hay productos. Crea el primero con "Nuevo producto".</td></tr>';
             return;
         }
 
-        let html = '';
-        window.adminProducts = data; // Cache para edición rápida
-
-        data.forEach(p => {
-            const imgSrc = p.URL_Imagen || 'data:image/svg+xml;utf8,<svg xmlns=\\\'http://www.w3.org/2000/svg\\\'><rect width=\\\'100%\\\' height=\\\'100%\\\' fill=\\\'#09090b\\\'/></svg>';
-
-            const badgeActivo = p.Activo
-                ? '<span class="bg-primary text-white px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm">Operativo</span>'
-                : '<span class="bg-white text-dark px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm">Baja</span>';
-
-            const badgeDestacado = p.Destacado
-                ? '<span class="bg-secondary text-dark px-2 py-1 font-display uppercase tracking-widest text-xs border-2 border-dark shadow-brutal-sm mt-2 inline-block">Élite</span>'
+        tbody.innerHTML = data.map((p) => {
+            const id = escapeHtml(p.ID);
+            const nombre = escapeHtml(p.Nombre);
+            const estado = p.Activo
+                ? '<span class="inline-flex items-center gap-1.5 rounded-full bg-green-100 text-green-800 text-xs font-extrabold px-3 py-1"><span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>Visible</span>'
+                : '<span class="inline-flex items-center gap-1.5 rounded-full bg-arena text-cafe-suave text-xs font-extrabold px-3 py-1"><span class="w-1.5 h-1.5 rounded-full bg-cafe-suave"></span>Oculto</span>';
+            const favorito = p.Destacado
+                ? '<span class="inline-flex rounded-full bg-amarillo text-cafe text-xs font-extrabold px-3 py-1">Recomendado</span>'
                 : '';
 
-            html += `
-                <tr class="hover:bg-surface transition-colors border-b-4 border-dark">
-                    <td class="p-4 border-r-4 border-dark">
-                        <img src="${imgSrc}" class="w-16 h-16 object-cover border-4 border-dark grayscale bg-dark" alt="img">
-                    </td>
-                    <td class="p-4 border-r-4 border-dark">
-                        <p class="font-display font-bold text-xl text-dark uppercase leading-none">${p.Nombre}</p>
-                    </td>
-                    <td class="p-4 border-r-4 border-dark text-dark font-bold font-display uppercase">${p.Categoria}</td>
-                    <td class="p-4 border-r-4 border-dark font-display font-bold text-xl text-primary">$${p.Precio.toFixed(2)}</td>
-                    <td class="p-4 border-r-4 border-dark">
-                        <div class="flex flex-col items-start">${badgeActivo}${badgeDestacado}</div>
-                    </td>
-                    <td class="p-4 text-center">
-                        <div class="flex flex-col gap-2 justify-center items-center">
-                            <button class="bg-white text-dark border-4 border-dark font-display uppercase font-bold px-4 py-1 hover:bg-dark hover:text-white transition-colors w-full" onclick="window.editProduct('${p.ID}')">Reconfigurar</button>
-                            <button class="bg-primary text-white border-4 border-dark font-display uppercase font-bold px-4 py-1 hover:bg-dark hover:text-white transition-colors w-full" onclick="window.deleteProduct('${p.ID}')">Purgar</button>
+            return `
+                <tr class="hover:bg-crema/60 transition-colors">
+                    <td class="px-5 py-4">
+                        <div class="flex items-center gap-4">
+                            <img src="${escapeHtml(p.URL_Imagen || IMAGEN_VACIA)}" alt="" class="w-14 h-14 rounded-xl object-cover bg-arena shrink-0">
+                            <div class="min-w-0">
+                                <p class="font-extrabold">${nombre}</p>
+                                <p class="text-sm text-cafe-suave line-clamp-1 max-w-xs">${escapeHtml(p.Descripcion)}</p>
+                            </div>
                         </div>
                     </td>
-                </tr>
-            `;
-        });
-
-        tbody.innerHTML = html;
+                    <td class="px-5 py-4 font-semibold">${escapeHtml(p.Categoria)}</td>
+                    <td class="px-5 py-4 font-display text-xl text-rojo">${formatCOP(p.Precio)}</td>
+                    <td class="px-5 py-4"><div class="flex flex-wrap gap-2">${estado}${favorito}</div></td>
+                    <td class="px-5 py-4">
+                        <div class="flex justify-end gap-2">
+                            <button type="button" data-accion="editar" data-id="${id}" class="h-10 px-4 rounded-full border-2 border-arena font-extrabold hover:bg-arena transition-colors cursor-pointer">Editar</button>
+                            <button type="button" data-accion="eliminar" data-id="${id}" class="h-10 px-4 rounded-full text-rojo-oscuro font-extrabold hover:bg-rojo/10 transition-colors cursor-pointer" aria-label="Eliminar ${nombre}">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>`;
+        }).join('');
     } catch (error) {
-        console.error('Error fetching admin products:', error);
-        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-primary font-display text-2xl uppercase border-b-4 border-dark">Falla de Sistema.</td></tr>`;
+        console.error('Error cargando productos:', error);
+        resumen.textContent = '';
+        tbody.innerHTML = '<tr><td colspan="5" class="px-5 py-10 text-center text-rojo-oscuro font-bold">No se pudieron cargar los productos. Revisa la conexión con Supabase.</td></tr>';
     }
 }
 
-window.editProduct = function (id) {
-    const product = window.adminProducts.find(p => p.ID.toString() === id.toString());
+function editProduct(id) {
+    const product = productosAdmin.find((p) => String(p.ID) === String(id));
     if (!product) return;
 
-    document.getElementById('modal-title').textContent = 'Editar Producto';
     document.getElementById('prod-id').value = product.ID;
     document.getElementById('prod-nombre').value = product.Nombre;
-    document.getElementById('prod-descripcion').value = product.Descripcion;
+    document.getElementById('prod-descripcion').value = product.Descripcion || '';
     document.getElementById('prod-precio').value = product.Precio;
-    document.getElementById('prod-categoria').value = product.Categoria;
+    document.getElementById('prod-precio-vista').textContent = `Se verá como ${formatCOP(product.Precio)}`;
+
+    // Si la categoría no está en la lista, se agrega para no perderla al guardar
+    const select = document.getElementById('prod-categoria');
+    if (product.Categoria && ![...select.options].some((o) => o.value === product.Categoria)) {
+        select.add(new Option(product.Categoria, product.Categoria));
+    }
+    select.value = product.Categoria;
+
     document.getElementById('prod-activo').checked = product.Activo;
     document.getElementById('prod-destacado').checked = product.Destacado;
     document.getElementById('prod-url-imagen-actual').value = product.URL_Imagen || '';
 
-    // Mostrar modal (reusando lógica de toggleModal indirectamente abriendo)
-    const modalOverlay = document.getElementById('admin-modal-overlay');
-    const modalContent = document.getElementById('admin-modal-content');
-    modalOverlay.classList.remove('opacity-0', 'pointer-events-none');
-    modalContent.classList.remove('scale-95');
-    modalContent.classList.add('scale-100');
-};
+    abrirModal('Editar producto');
+}
 
-window.deleteProduct = async function (id) {
-    if (!confirm('¿Estás seguro de que deseas eliminar este producto permanentemente?')) return;
+async function deleteProduct(id) {
+    const product = productosAdmin.find((p) => String(p.ID) === String(id));
+    if (!confirm(`¿Eliminar "${product?.Nombre ?? 'este producto'}" del menú? Esta acción no se puede deshacer.`)) return;
 
     try {
         const { error } = await supabaseApp.from('productos').delete().eq('ID', id);
         if (error) throw error;
+        mostrarToast('Producto eliminado');
         loadAdminProducts();
     } catch (error) {
         console.error('Error al eliminar:', error);
-        alert('No se pudo eliminar el producto.');
+        mostrarToast('No se pudo eliminar el producto', 'error');
     }
-};
+}

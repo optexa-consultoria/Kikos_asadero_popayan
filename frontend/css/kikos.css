@@ -1,0 +1,77 @@
+/* =========================================================
+   Asadero Kikos — utilidades propias (complementan Tailwind)
+   Tokens: js/tailwind.config.js · Guía: design-system/asadero-kikos/MASTER.md
+   ========================================================= */
+
+:root {
+    --rojo: #E91C01;
+    --naranja: #FA6B02;
+    --amarillo: #FED201;
+    --crema: #FFF6E6;
+    --cafe: #2A1206;
+    --rojo-oscuro: #B81500;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'Nunito Sans', system-ui, sans-serif; background-color: var(--crema); color: var(--cafe); }
+.font-display { letter-spacing: 0.01em; }
+
+/* Degradado del aviso: amarillo → naranja → rojo */
+.bg-rotulo { background-image: linear-gradient(180deg, var(--amarillo) 0%, var(--naranja) 55%, var(--rojo) 100%); }
+.bg-rotulo-x { background-image: linear-gradient(90deg, var(--amarillo) 0%, var(--naranja) 55%, var(--rojo) 100%); }
+
+/* Texto con degradado para fondos claros (sin el amarillo, que no se lee sobre crema) */
+.texto-rotulo {
+    background-image: linear-gradient(180deg, var(--naranja) 0%, var(--rojo) 85%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* Fondo claro con un brillo cálido suave (portadas de cada vista) */
+.brillo-calido {
+    background-color: var(--crema);
+    background-image:
+        radial-gradient(ellipse 55% 60% at 85% 35%, rgba(254, 210, 1, 0.30), transparent 70%),
+        radial-gradient(ellipse 45% 50% at 0% 100%, rgba(250, 107, 2, 0.12), transparent 70%);
+}
+
+/* Vistas del router SPA */
+.spa-view { display: none; }
+.spa-view.active { display: block; animation: aparecer 0.25s ease-out; }
+@keyframes aparecer { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Enlaces de navegación activos (router.js pone aria-current="page") */
+.nav-link[aria-current="page"] { box-shadow: inset 0 -3px 0 currentColor; }
+.nav-movil[aria-current="page"] { color: var(--rojo-oscuro); }
+
+/* Sin barra de scroll (chips de categorías) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Datos legales aún sin completar en js/config.js */
+.dato-pendiente { background: #FED201; color: #2A1206; font-weight: 800; padding: 0 0.3em; border-radius: 4px; }
+
+/* Páginas legales: tipografía de lectura */
+.legal { line-height: 1.7; }
+.legal h2 { font-family: 'Anton', Impact, sans-serif; text-transform: uppercase; font-size: 1.6rem; line-height: 1.2; margin: 2.5rem 0 0.75rem; }
+.legal h3 { font-weight: 800; font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+.legal p, .legal li { color: #4A3222; }
+.legal p + p { margin-top: 0.75rem; }
+.legal ul, .legal ol { margin: 0.75rem 0 0.75rem 1.25rem; }
+.legal ul { list-style: disc; }
+.legal ol { list-style: decimal; }
+.legal li + li { margin-top: 0.35rem; }
+.legal a { color: var(--rojo-oscuro); text-decoration: underline; text-underline-offset: 3px; }
+.legal table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
+.legal th, .legal td { text-align: left; vertical-align: top; padding: 0.6rem 0.75rem; border: 1px solid #E6D2AF; }
+.legal th { background: #F3E2C4; color: var(--cafe); }
+
+/* Foco visible */
+:focus-visible { outline: 3px solid var(--rojo); outline-offset: 3px; border-radius: 6px; }
+
+/* Espacio para la barra inferior en móvil (incluye notch) */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

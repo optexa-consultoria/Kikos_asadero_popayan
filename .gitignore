@@ -5,3 +5,9 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Dependencias
+node_modules/
+
+# Fotos de terceros con derechos no confirmados (no publicar en el repositorio)
+Resources/ra62-Asadero-Kikos-Centro-photo.jpg
